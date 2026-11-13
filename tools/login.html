@@ -137,7 +137,7 @@
             try {
                 window.parent.postMessage({ type: 'navigate', url: targetPage }, '*');
             } catch (err) {
-                window.location.href = '../main.html';
+                window.location.href = '../' + targetPage;
             }
         });
     </script>

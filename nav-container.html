@@ -171,7 +171,10 @@
 
         window.addEventListener('message', function(event) {
             if (event.data && (event.data.type === 'pageLoaded' || event.data.type === 'setActive')) {
+                // 1. 更新中央标题和高亮
                 updateNavUI();
+                // 2. 顺便查一下登录状态并更新按钮 (解决登录后不刷新的 Bug)
+                updateAuthUI();
             }
         });
 
