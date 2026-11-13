@@ -184,12 +184,16 @@
 
         function updateAuthUI() {
             const currentUser = localStorage.getItem('ice_user');
+            // 如果有存昵称就显示昵称，否则显示用户名
+            const currentNickname = localStorage.getItem('ice_nickname') || currentUser;
+
             if (currentUser) {
-                loginBtn.textContent = currentUser;
+                loginBtn.textContent = currentNickname;
                 loginBtn.className = 'nav-btn btn-user';
                 registerBtn.style.display = 'none';
                 loginBtn.onclick = function(e) { e.preventDefault(); };
-                if (mobileLoginBtn) mobileLoginBtn.textContent = '个人中心 (' + currentUser + ')';
+                
+                if (mobileLoginBtn) mobileLoginBtn.textContent = '个人中心 (' + currentNickname + ')';
                 if (mobileRegisterBtn) mobileRegisterBtn.parentElement.style.display = 'none';
                 if (mobileLogoutLi) mobileLogoutLi.style.display = 'block';
             } else {
@@ -197,6 +201,7 @@
                 loginBtn.className = 'nav-btn btn-login';
                 registerBtn.style.display = '';
                 loginBtn.onclick = handleLoginClick;
+                
                 if (mobileLoginBtn) mobileLoginBtn.textContent = '登录';
                 if (mobileRegisterBtn) mobileRegisterBtn.parentElement.style.display = 'block';
                 if (mobileLogoutLi) mobileLogoutLi.style.display = 'none';
@@ -233,6 +238,7 @@
             }
             localStorage.removeItem('ice_user');
             localStorage.removeItem('ice_token');
+            localStorage.removeItem('ice_nickname'); // 退出时顺便清空昵称
             document.cookie = "ice_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             updateAuthUI();
             try { window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*'); } catch (err) {}
@@ -302,6 +308,7 @@
                 if (data.valid === false) {
                     localStorage.removeItem('ice_user');
                     localStorage.removeItem('ice_token');
+                    localStorage.removeItem('ice_nickname');
                     document.cookie = "ice_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                     updateAuthUI();
                     try { window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*'); } catch (err) {}
@@ -310,10 +317,8 @@
             } catch (e) {}
         }
 
-        // 每 15 秒轮询一次
         setInterval(checkSession, 15000);
 
-        // 每次页面重新获得焦点时立刻检测（这样对方一点强制下线，你切回页面瞬间就会发现）
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
                 checkSession();

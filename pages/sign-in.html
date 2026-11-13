@@ -143,6 +143,7 @@
                     if (loginRes.ok) {
                         localStorage.setItem('ice_user', user);
                         localStorage.setItem('ice_token', loginData.token);
+                        localStorage.setItem('ice_nickname', loginData.nickname || user);
                     } else {
                         // 登录失败只存用户，不存 token
                         localStorage.setItem('ice_user', user);

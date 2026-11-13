@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人主页 · 冰冰冰官网</title>
-    <!-- 引入自制的日历模块 -->
+    <!-- 引入自制的日历模块和图片查看器 -->
     <link rel="stylesheet" href="../tools/dayselect.css">
+    <link rel="stylesheet" href="../tools/photoview.css">
     <style>
-        /* ... 保持你上一版的 CSS 不变 ... */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg: #ffffff; --text: #1d1d1f; --text-secondary: #6e6e73;
@@ -33,7 +33,8 @@
             font-size: 50px; overflow: hidden; border: 4px solid var(--bg);
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        .avatar-large img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-large img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; }
+        
         .avatar-upload-label {
             position: absolute; bottom: 0; right: 0; background: var(--button-bg); color: #fff;
             width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -99,7 +100,7 @@
                 <div class="info-item"><div class="label">QQ 账号</div><div class="value" id="displayQQ">未绑定</div></div>
                 <div class="info-item"><div class="label">所在地</div><div class="value" id="displayLocation">未填写</div></div>
                 <div class="info-item"><div class="label">生日</div><div class="value" id="displayBirthday">未填写</div></div>
-                <div class="info-item"><div class="label">性别</div><div class="value" id="displayGender">未填写</div></div>
+                <div class="info-item"><div class="label">性别</div><div class="value" id="displayGender">保密</div></div>
             </div>
             <button id="editBtn" style="display: none;">编辑个人资料</button>
         </div>
@@ -125,7 +126,6 @@
                 </div>
                 <div class="input-group">
                     <label>生日</label>
-                    <!-- 替换为自绘控件 -->
                     <div class="fake-date-input" id="customDateInput"></div>
                     <input type="hidden" id="inputBirthday">
                 </div>
@@ -158,8 +158,9 @@
         </div>
     </div>
 
-    <!-- 引入 dayselect.js -->
+    <!-- 引入模块 -->
     <script src="../tools/dayselect.js"></script>
+    <script src="../tools/photoview.js"></script>
     <script>
         const saved = localStorage.getItem('ice-theme') || 'auto';
         let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
@@ -181,7 +182,6 @@
         const hiddenDateInput = document.getElementById('inputBirthday');
 
         customDateInput.onclick = function() {
-            // 唤起自制日历，传入当前的日期值
             DaySelect.open(hiddenDateInput.value, function(selectedDateStr) {
                 hiddenDateInput.value = selectedDateStr;
                 customDateInput.textContent = selectedDateStr;
@@ -213,12 +213,14 @@
                     }
 
                     if (isMyProfile) {
+                        // 💡 同步昵称到本地缓存，让导航栏立刻更新
+                        if(u.nickname) localStorage.setItem('ice_nickname', u.nickname);
+                        
                         document.getElementById('editBtn').style.display = 'block';
                         document.getElementById('inputNickname').value = u.nickname || u.username;
                         document.getElementById('inputQQ').value = u.qq_number || "";
                         document.getElementById('inputLocation').value = u.location || "";
                         
-                        // 生日数据处理
                         hiddenDateInput.value = u.birthday || "";
                         if (u.birthday) {
                             customDateInput.textContent = u.birthday;
@@ -229,19 +231,13 @@
                     }
 
                     // =============== 生日彩蛋逻辑 ===============
-                    // 如果当前用户在看自己的主页，且设置了生日
                     if (isMyProfile && u.birthday) {
                         const today = new Date();
-                        // 获取当前的 月-日 (例如 "11-13")
                         const currentMMDD = String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-                        // 从保存的生日字符串中提取 "YYYY-MM-DD" 的 "MM-DD"
                         const birthdayMMDD = u.birthday.substring(5); 
                         
                         if (currentMMDD === birthdayMMDD) {
-                            // 触发彩蛋：向父窗口发送播放特殊 BGM 的指令
-                            try {
-                                window.parent.postMessage({ type: 'playBirthdayBgm' }, '*');
-                            } catch (e) {}
+                            try { window.parent.postMessage({ type: 'playBirthdayBgm' }, '*'); } catch (e) {}
                         }
                     }
                 }
@@ -261,7 +257,7 @@
             document.getElementById('editMode').style.display = 'none';
             document.getElementById('avatarUploadLabel').style.display = 'none';
             if(currentAvatarBase64) {
-                document.getElementById('avatarBox').innerHTML = `<img src="${currentAvatarBase64}">`;
+                document.getElementById('avatarBox').innerHTML = `<img src="${currentAvatarBase64}" onclick="PhotoView.open('${currentAvatarBase64}')">`;
             } else {
                 document.getElementById('avatarBox').innerHTML = `👤`;
             }
@@ -298,7 +294,7 @@
                 avatar_url: currentAvatarBase64,
                 qq: document.getElementById('inputQQ').value.trim(),
                 location: document.getElementById('inputLocation').value.trim(),
-                birthday: hiddenDateInput.value, // 使用隐藏域里的值
+                birthday: hiddenDateInput.value,
                 gender: document.getElementById('inputGender').value
             };
 

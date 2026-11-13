@@ -106,7 +106,9 @@
                 if (res.ok) {
                     // 验证成功，保存 Token
                     localStorage.setItem('ice_user', user);
-                    localStorage.setItem('ice_token', data.token); 
+                    localStorage.setItem('ice_token', data.token);
+                    // 在 login.html 和 sign-in.html 里加上
+                    localStorage.setItem('ice_nickname', data.nickname || user); 
                     
                     // 通知导航栏（通过外层框架转发）
                     try { window.parent.postMessage({ type: 'updateAuth' }, '*'); } catch (e) {}
