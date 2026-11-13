@@ -9,40 +9,25 @@
 <body>
 
     <nav class="global-nav">
-        <!-- 手机端汉堡按钮 (左侧) -->
         <div class="mobile-toggle" id="mobileToggle">☰</div>
-        
-        <!-- 手机端中央显示的当前高亮页 -->
         <div class="mobile-current-title" id="mobileCurrentTitle">冰冰冰官网</div>
         
         <ul id="navMenu">
-            <!-- 桌面端 Logo (手机端隐藏) -->
             <li class="logo-placeholder desktop-only-auth"><a href="#" data-nav="main.html">🧊冰冰冰官网</a></li>
-            
-            <!-- 手机端专属的“首页”入口 -->
             <li class="mobile-only-auth" id="navHome"><a href="#" data-nav="main.html">首页</a></li>
-
             <li id="navWhat"><a href="#" data-nav="whatice.html">什么是冰冰冰</a></li>
             <li><a href="#" data-nav="#">探索冰冰冰档案馆</a></li>
             <li><a href="#" data-nav="pages/community.html">冰冰冰社区</a></li>
             <li id="navSupport"><a href="#" data-nav="pages/supportmain.html">支持</a></li>
             <li id="navAbout"><a href="#" data-nav="aboutus.html">关于</a></li>
             
-            <!-- 手机端专属：登录/注册/退出 -->
-            <li class="mobile-only-auth">
-                <a href="#" id="mobileLoginBtn">登录</a>
-            </li>
-            <li class="mobile-only-auth">
-                <a href="#" id="mobileRegisterBtn">注册</a>
-            </li>
-            <li class="mobile-only-auth" id="mobileLogoutLi" style="display: none;">
-                <a href="#" id="mobileLogoutBtn" style="color: #ff453a;">退出登录</a>
-            </li>
+            <li class="mobile-only-auth"><a href="#" id="mobileLoginBtn">登录</a></li>
+            <li class="mobile-only-auth"><a href="#" id="mobileRegisterBtn">注册</a></li>
+            <li class="mobile-only-auth" id="mobileLogoutLi" style="display: none;"><a href="#" id="mobileLogoutBtn" style="color: #ff453a;">退出登录</a></li>
         </ul>
     </nav>
 
     <div class="nav-right-group">
-        <!-- 桌面端登录/用户菜单 -->
         <div class="user-menu-container desktop-only-auth">
             <a href="#" class="nav-btn btn-login" id="navLoginBtn">登录</a>
             <div class="user-dropdown" id="userDropdown">
@@ -52,8 +37,6 @@
             </div>
         </div>
         <a href="#" class="nav-btn btn-register desktop-only-auth" id="navRegisterBtn">注册</a>
-        
-        <!-- 设置按钮 -->
         <div class="settings-btn" id="settingsBtn" title="设置">⚙️</div>
     </div>
 
@@ -74,21 +57,17 @@
         </div>
         <div class="setting-row" style="flex-direction: column; align-items: stretch; gap: 6px;">
             <label for="musicSelect">音乐选择</label>
-            <select class="music-select" id="musicSelect">
-                <option value="">加载中...</option>
-            </select>
+            <select class="music-select" id="musicSelect"><option value="">加载中...</option></select>
         </div>
         <div class="setting-divider"></div>
         <div class="setting-row" style="font-size: 12px; color: var(--text-tertiary);">
-            <span>冰鸣状态</span>
-            <span>🧊🧊🧊 正常</span>
+            <span>冰鸣状态</span><span>🧊🧊🧊 正常</span>
         </div>
     </div>
 
     <audio id="bgMusic" loop preload="none"></audio>
 
     <script>
-        // ⚠️ 确保这里是你最新的 API 地址
         const API_BASE = 'https://api.iceapis.dpdns.org';
 
         const settingsBtn = document.getElementById('settingsBtn');
@@ -102,7 +81,6 @@
             const isOpen = settingsPanel.classList.toggle('open');
             try { window.parent.postMessage({ type: 'settingsToggle', open: isOpen }, '*'); } catch (err) {}
         });
-
         document.addEventListener('click', function(e) {
             if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
                 if (settingsPanel.classList.contains('open')) {
@@ -121,15 +99,13 @@
             });
         }
 
-        // ===== 核心高亮与标题更新逻辑 =====
+        // ===== 高亮逻辑 =====
         function updateNavUI() {
             try {
                 const contentFrame = window.parent.document.getElementById('contentFrame');
                 if (!contentFrame) return;
-                
                 const path = contentFrame.contentWindow.location.pathname;
                 const page = path.substring(path.lastIndexOf('/') + 1) || 'main.html';
-                
                 const mobileTitle = document.getElementById('mobileCurrentTitle');
                 document.querySelectorAll('.global-nav li').forEach(li => li.classList.remove('nav-active'));
                 
@@ -143,17 +119,13 @@
                     document.getElementById('navSupport').classList.add('nav-active');
                     if (mobileTitle) mobileTitle.textContent = '支持';
                 } else if (page.includes('community')) {
-                    // 社区页
-                    const navCommunity = document.querySelector('.global-nav li a[data-nav="pages/community.html"]').parentElement;
-                    if (navCommunity) navCommunity.classList.add('nav-active');
+                    document.querySelector('.global-nav li a[data-nav="pages/community.html"]').parentElement.classList.add('nav-active');
                     if (mobileTitle) mobileTitle.textContent = '社区';
                 } else if (page.includes('profile')) {
-                    // 个人主页
                     const navProfile = document.getElementById('navHome'); 
                     if (navProfile) navProfile.classList.add('nav-active');
                     if (mobileTitle) mobileTitle.textContent = '个人主页';
                 } else {
-                    // 首页
                     const homeNav = document.getElementById('navHome');
                     if (homeNav) homeNav.classList.add('nav-active');
                     const desktopLogo = document.querySelector('.logo-placeholder');
@@ -162,7 +134,6 @@
                 }
             } catch (e) {}
         }
-
         setTimeout(updateNavUI, 500);
 
         // ===== 导航点击 =====
@@ -181,18 +152,15 @@
             });
         });
 
-        // 统一监听消息
+        // ===== 消息监听 =====
         window.addEventListener('message', function(event) {
-            if (event.data && (event.data.type === 'pageLoaded' || event.data.type === 'setActive')) {
+            if (event.data && (event.data.type === 'pageLoaded' || event.data.type === 'setActive' || event.data.type === 'updateAuth')) {
                 updateNavUI();
-                updateAuthUI();
-            }
-            if (event.data && event.data.type === 'updateAuth') {
                 updateAuthUI();
             }
         });
 
-        // ===== 登录/注册 状态处理 =====
+        // ===== 登录状态 UI =====
         const loginBtn = document.getElementById('navLoginBtn');
         const registerBtn = document.getElementById('navRegisterBtn');
         const mobileLoginBtn = document.getElementById('mobileLoginBtn');
@@ -216,26 +184,19 @@
 
         function updateAuthUI() {
             const currentUser = localStorage.getItem('ice_user');
-            
-            // 桌面端
             if (currentUser) {
                 loginBtn.textContent = currentUser;
                 loginBtn.className = 'nav-btn btn-user';
                 registerBtn.style.display = 'none';
                 loginBtn.onclick = function(e) { e.preventDefault(); };
+                if (mobileLoginBtn) mobileLoginBtn.textContent = '个人中心 (' + currentUser + ')';
+                if (mobileRegisterBtn) mobileRegisterBtn.parentElement.style.display = 'none';
+                if (mobileLogoutLi) mobileLogoutLi.style.display = 'block';
             } else {
                 loginBtn.textContent = '登录';
                 loginBtn.className = 'nav-btn btn-login';
                 registerBtn.style.display = '';
                 loginBtn.onclick = handleLoginClick;
-            }
-
-            // 手机端
-            if (currentUser) {
-                if (mobileLoginBtn) mobileLoginBtn.textContent = '个人中心 (' + currentUser + ')';
-                if (mobileRegisterBtn) mobileRegisterBtn.parentElement.style.display = 'none';
-                if (mobileLogoutLi) mobileLogoutLi.style.display = 'block';
-            } else {
                 if (mobileLoginBtn) mobileLoginBtn.textContent = '登录';
                 if (mobileRegisterBtn) mobileRegisterBtn.parentElement.style.display = 'block';
                 if (mobileLogoutLi) mobileLogoutLi.style.display = 'none';
@@ -247,26 +208,20 @@
             if (localStorage.getItem('ice_user')) {
                 e.preventDefault();
                 try { window.parent.postMessage({ type: 'navigate', url: 'pages/profile.html' }, '*'); } catch (err) {}
-            } else {
-                handleLoginClick(e);
-            }
+            } else handleLoginClick(e);
         };
-        
         if (mobileRegisterBtn) mobileRegisterBtn.onclick = function(e) {
             e.preventDefault();
             try { window.parent.postMessage({ type: 'navigate', url: 'pages/sign-in.html' }, '*'); } catch (err) {}
         };
-        
         registerBtn.onclick = function(e) {
             e.preventDefault();
             try { window.parent.postMessage({ type: 'navigate', url: 'pages/sign-in.html' }, '*'); } catch (err) {}
         };
 
-        // ===== 退出登录（修复版） =====
+        // ===== 退出登录 =====
         async function logout() {
             const currentUser = localStorage.getItem('ice_user');
-            
-            // 1. 如果本地有用户，先请求后端销毁会话
             if (currentUser) {
                 try {
                     await fetch(API_BASE + '/api/logout', {
@@ -274,24 +229,17 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ username: currentUser })
                     });
-                } catch (e) {
-                    console.warn("后端退出请求失败，可能由于网络问题");
-                }
+                } catch (e) {}
             }
-
-            // 2. 清理本地存储
             localStorage.removeItem('ice_user');
             localStorage.removeItem('ice_token');
             document.cookie = "ice_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            
-            // 3. 刷新 UI 并跳转
             updateAuthUI();
             try { window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*'); } catch (err) {}
         }
 
         const menuLogoutBtn = document.getElementById('menuLogoutBtn');
         if (menuLogoutBtn) menuLogoutBtn.onclick = function(e) { e.preventDefault(); logout(); };
-        
         if (mobileLogoutBtn) {
             mobileLogoutBtn.onclick = function(e) {
                 e.preventDefault();
@@ -303,7 +251,6 @@
             };
         }
 
-        // ===== 下拉菜单 =====
         const menuProfileBtn = document.getElementById('menuProfileBtn');
         if (menuProfileBtn) {
             menuProfileBtn.onclick = function(e) { 
@@ -312,10 +259,10 @@
             };
         }
 
+        // ===== 下拉菜单 =====
         const userMenuContainer = document.querySelector('.user-menu-container');
         const userDropdown = document.getElementById('userDropdown');
         let dropdownTimeout;
-
         function openDropdown() {
             clearTimeout(dropdownTimeout);
             if (localStorage.getItem('ice_user')) {
@@ -323,7 +270,6 @@
                 try { window.parent.postMessage({ type: 'settingsToggle', open: true }, '*'); } catch (e) {}
             }
         }
-
         function closeDropdown() {
             dropdownTimeout = setTimeout(() => {
                 userDropdown.classList.remove('show');
@@ -332,13 +278,47 @@
                 }
             }, 150);
         }
-
         if (userMenuContainer) {
             userMenuContainer.addEventListener('mouseenter', openDropdown);
             userMenuContainer.addEventListener('mouseleave', closeDropdown);
             userDropdown.addEventListener('mouseenter', openDropdown);
             userDropdown.addEventListener('mouseleave', closeDropdown);
         }
+
+        // ================== 核心：多端互踢心跳检测 ==================
+        async function checkSession() {
+            const currentUser = localStorage.getItem('ice_user');
+            const currentToken = localStorage.getItem('ice_token');
+            if (!currentUser || !currentToken) return;
+
+            try {
+                const res = await fetch(API_BASE + '/api/check-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: currentUser, token: currentToken })
+                });
+                const data = await res.json();
+
+                if (data.valid === false) {
+                    localStorage.removeItem('ice_user');
+                    localStorage.removeItem('ice_token');
+                    document.cookie = "ice_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    updateAuthUI();
+                    try { window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*'); } catch (err) {}
+                    alert('您的账号已在其他设备登录，您已被强制下线。');
+                }
+            } catch (e) {}
+        }
+
+        // 每 15 秒轮询一次
+        setInterval(checkSession, 15000);
+
+        // 每次页面重新获得焦点时立刻检测（这样对方一点强制下线，你切回页面瞬间就会发现）
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                checkSession();
+            }
+        });
     </script>
 
     <script src="themeswitcher.js"></script>

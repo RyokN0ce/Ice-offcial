@@ -7,319 +7,244 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg: #ffffff;
-            --text: #1d1d1f;
-            --text-secondary: #6e6e73;
-            --card-bg: #f5f5f7;
-            --border: #d2d2d7;
-            --link: #0066cc;
-            --code-bg: #282c34;
-            --code-text: #abb2bf;
-            --table-header: #f0f0f2;
+            --bg: #ffffff; --text: #1d1d1f; --text-secondary: #6e6e73;
+            --card-bg: #f5f5f7; --border: #d2d2d7; --link: #0066cc;
+            --code-bg: #282c34; --code-text: #abb2bf; --table-header: #f0f0f2;
+            --alert-bg: rgba(255, 159, 10, 0.1); --alert-border: #ff9f0a;
         }
         [data-theme="dark"] {
-            --bg: #000000;
-            --text: #f5f5f7;
-            --text-secondary: #a1a1a6;
-            --card-bg: #1c1c1e;
-            --border: #38383a;
-            --link: #2997ff;
-            --code-bg: #1e1e1e;
-            --code-text: #d4d4d4;
-            --table-header: #2c2c2e;
+            --bg: #000000; --text: #f5f5f7; --text-secondary: #a1a1a6;
+            --card-bg: #1c1c1e; --border: #38383a; --link: #2997ff;
+            --code-bg: #1e1e1e; --code-text: #d4d4d4; --table-header: #2c2c2e;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            transition: background-color 0.35s ease, color 0.35s ease;
-            padding: 40px 20px;
+            background-color: var(--bg); color: var(--text); line-height: 1.6;
+            transition: background-color 0.35s ease; padding: 40px 20px;
         }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        /* 页面标题区 */
+        .container { max-width: 900px; margin: 0 auto; }
+        
         .page-header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
+            text-align: center; margin-bottom: 40px; padding-bottom: 20px;
             border-bottom: 1px solid var(--border);
         }
-        .page-header h1 {
-            font-size: 36px;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-            margin-bottom: 8px;
-        }
-        .page-header p {
-            color: var(--text-secondary);
-            font-size: 15px;
-        }
+        .page-header h1 { font-size: 36px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 8px; }
+        .page-header p { color: var(--text-secondary); font-size: 15px; }
 
-        /* 模拟聊天记录的卡片 */
-        .chat-bubble {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 30px;
+        .card {
+            background-color: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 16px; padding: 30px; margin-bottom: 24px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.02);
         }
-
-        .chat-bubble h2 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .card h2 {
+            font-size: 22px; font-weight: 600; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
         }
+        .card h3 { font-size: 18px; font-weight: 600; margin: 20px 0 10px; }
+        .card p { margin-bottom: 12px; font-size: 15px; }
         
-        .chat-bubble h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 20px 0 12px;
-        }
-
-        .chat-bubble p {
-            margin-bottom: 16px;
-            font-size: 15px;
-        }
-
-        .chat-bubble ul, .chat-bubble ol {
-            margin-left: 20px;
-            margin-bottom: 16px;
-            font-size: 15px;
-        }
-
-        .chat-bubble li {
-            margin-bottom: 8px;
-        }
-
-        /* 代码块样式 */
-        pre {
-            background-color: var(--code-bg);
-            color: var(--code-text);
-            padding: 16px;
-            border-radius: 12px;
-            overflow-x: auto;
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-
+        ul { margin-left: 20px; margin-bottom: 16px; font-size: 15px; }
+        li { margin-bottom: 8px; }
+        
+        /* 表格样式 */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 14px; }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background-color: var(--table-header); font-weight: 600; }
+        
+        /* 代码块 */
         code {
             font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-            background-color: var(--border);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.9em;
+            background-color: var(--border); padding: 2px 6px; border-radius: 4px; font-size: 0.9em;
         }
-
-        pre code {
-            background-color: transparent;
-            padding: 0;
-            color: inherit;
+        pre {
+            background-color: var(--code-bg); color: var(--code-text);
+            padding: 16px; border-radius: 12px; overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, monospace;
+            font-size: 14px; line-height: 1.5; margin-bottom: 16px;
         }
-
-        /* 表格样式 */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 24px;
-            font-size: 14px;
-        }
-        th, td {
-            padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-        th {
-            background-color: var(--table-header);
-            font-weight: 600;
-        }
-
-        /* 提示框 */
+        pre code { background-color: transparent; padding: 0; color: inherit; }
+        
+        /* 警告框 */
         .alert {
-            background-color: rgba(255, 159, 10, 0.1);
-            border-left: 4px solid #ff9f0a;
-            padding: 16px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        .alert-info {
-            background-color: rgba(0, 102, 204, 0.1);
-            border-left-color: var(--link);
+            background-color: var(--alert-bg); border-left: 4px solid var(--alert-border);
+            padding: 16px; border-radius: 4px; margin-bottom: 16px; font-size: 14px;
         }
 
         /* 返回按钮 */
         .back-home {
-            display: block;
-            text-align: center;
-            margin-top: 40px;
-            color: var(--link);
-            text-decoration: none;
-            font-size: 16px;
-            cursor: pointer;
+            display: block; text-align: center; margin-top: 40px;
+            color: var(--link); text-decoration: none; font-size: 16px; cursor: pointer;
         }
         .back-home:hover { text-decoration: underline; }
-
     </style>
 </head>
 <body>
 
     <div class="container">
         <header class="page-header">
-            <h1>🧊 冰冰冰官网 · 开发文档</h1>
-            <p>包含配置结构、通信机制与开发规范</p>
+            <h1>🧊 冰冰冰官网 · 开发备忘录</h1>
+            <p>记录架构、文件职责、平台配置与续期提醒</p>
         </header>
 
-        <!-- 1. 目录结构 -->
-        <div class="chat-bubble">
-            <h2>📂 一、 目录结构概览</h2>
-            <pre><code>Ice-offcial/ (根目录)
-├── index.html               # 外框框架 (原 fe-main.html，负责套 iframe)
-├── main.html                # 首页内容 (原 index.html，位于 contentFrame 内)
-├── aboutus.html             # 关于我们 (内容页)
-├── whatice.html             # 什么是冰冰冰 (内容页)
-├── joinus.html              # 联系/维护申请聚合页 (内容页)
-├── nav-container.html       # 公共导航栏 (位于 navFrame 内)
-├── nav-container.css        # 导航栏与菜单样式
-├── pages/
-│   └── supportmain.html     # 支持与资源页 (内容页)
-├── tools/
-│   ├── login.html           # 登录页面
-│   ├── error.html           # 维护模式/报错提示页
-│   ├── devhelp.html         # 开发文档 (本页面)
-│   └── checkuser.js         # 用户状态校验与 XML 解析工具
-└── res/
-    ├── state.xml            # [状态库] 全站维护状态控制
-    ├── userlist.xml         # [数据库] 用户白名单
-    ├── mainaudio/           # [媒体库] BGM 音频目录
-    │   ├── playlist.json    # BGM 播放列表
-    │   └── *.mp3
-    └── otherphoto/          # 图标与各类素材</code></pre>
-        </div>
-
-        <!-- 2. 数据文件结构 -->
-        <div class="chat-bubble">
-            <h2>🗄️ 二、 核心数据文件结构</h2>
-            
-            <h3>1. 维护状态库：<code>res/state.xml</code></h3>
-            <p><strong>作用</strong>：用于控制全站是否进入“维护模式”。<code>index.html</code> (外框) 启动时会读取此文件。</p>
-            <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;status&gt;
-    &lt;!-- 
-      可选值：
-      normal       = 正常访问，加载 main.html
-      maintenance  = 维护模式，contentFrame 强制加载 tools/error.html
-    --&gt;
-    &lt;current&gt;normal&lt;/current&gt;
-&lt;/status&gt;</code></pre>
-
-            <h3>2. 用户白名单库：<code>res/userlist.xml</code></h3>
-            <p><strong>作用</strong>：作为账号登录的唯一凭证数据源，<code>login.html</code> 会拉取此文件比对账号密码。</p>
-            <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;users&gt;
-    &lt;user&gt;
-        &lt;name&gt;RyokN0ce&lt;/name&gt;
-        &lt;password&gt;ice2026&lt;/password&gt;
-        &lt;status&gt;active&lt;/status&gt; &lt;!-- active 正常, banned 封禁 --&gt;
-    &lt;/user&gt;
-&lt;/users&gt;</code></pre>
-
-            <h3>3. 背景音乐列表：<code>res/mainaudio/playlist.json</code></h3>
-            <p><strong>作用</strong>：供 <code>bgmswitcher.js</code> 读取，自动生成设置面板中的音乐下拉菜单。</p>
-            <pre><code>[
-  "bingbingbing.mp3",
-  "ice-ambient.mp3"
-]</code></pre>
-            <div class="alert">注意：将 .mp3 文件放入同目录后，在此 JSON 中添加文件名。**最后一行不能有逗号**。</div>
-        </div>
-
-        <!-- 3. 全局通信机制 -->
-        <div class="chat-bubble">
-            <h2>🔄 三、 全局通信机制 (postMessage)</h2>
-            <p>网站采用了外层容器 (<code>index.html</code>) + 内层内容 (<code>main.html</code> 等) + 导航栏 (<code>nav-container.html</code>) 的 iframe 架构，所有跨页面行为均通过 <code>window.postMessage</code> 传递。</p>
-            
+        <!-- 1. 平台与续期提醒 -->
+        <div class="card">
+            <h2>🌐 平台与续期备忘</h2>
             <table>
                 <thead>
                     <tr>
-                        <th>消息类型 (type)</th>
+                        <th>平台</th>
+                        <th>用途</th>
+                        <th>续期/过期</th>
+                        <th>登录方式</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>GitHub</strong></td>
+                        <td>代码仓库托管</td>
+                        <td>永久免费 (只要不违规)</td>
+                        <td>账号密码</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cloudflare</strong></td>
+                        <td>Pages前端 / Worker后端 / D1数据库</td>
+                        <td>永久免费 (有额度限制)</td>
+                        <td>邮箱</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DigitalPlat</strong></td>
+                        <td>免费域名 <code>iceapis.dpdns.org</code></td>
+                        <td><strong>需定期手动续期</strong> (建议设闹钟)</td>
+                        <td>GitHub 授权</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="alert">
+                ⚠️ <strong>核心注意</strong>：如果你的 Worker 绑定了 `api.iceapis.dpdns.org`，某天突然前端全挂、报网络错误，第一时间去 <a href="https://dash.domain.digitalplat.org/" target="_blank" style="color:inherit; text-decoration:underline;">DigitalPlat</a> 看看域名是不是过期了。
+            </div>
+        </div>
+
+        <!-- 2. 文件结构 -->
+        <div class="card">
+            <h2>📂 核心文件职责</h2>
+            <pre><code>Ice-offcial/ (根目录)
+├── index.html               # 外层框架 (套 iframe 的壳)
+├── main.html                # 首页内容
+├── nav-container.html       # 公共导航栏 (包含登录状态与手机端折叠)
+├── nav-container.css        # 导航栏样式 (含亮暗色与手机端媒体查询)
+├── aboutus.html             # 关于我们
+├── whatice.html             # 设定介绍
+├── joinus.html              # 创作者联系 / 维护申请
+├── pages/
+│   ├── supportmain.html     # 支持与资源页 (Canvas 图标)
+│   ├── sign-in.html         # 注册页面 (对接 Worker)
+│   ├── login.html           # 登录页面 (对接 Worker)
+│   ├── profile.html         # 个人主页 (支持本地图片上传与编辑资料)
+│   ├── community.html       # 社区搜索页 (搜用户)
+│   ├── privacy.html         # 隐私政策 (iframe 挂载 pdf)
+│   └── uses-terms.html      # 使用条款 (iframe 挂载 pdf)
+├── tools/
+│   └── devhelp.html         # 本文档
+└── res/
+    ├── state.xml            # 维护模式开关 (normal / maintenance)
+    ├── userlist.xml         # (已废弃) 旧版账号列表
+    └── mainaudio/           # BGM 音乐列表与文件</code></pre>
+        </div>
+
+        <!-- 3. 数据库表结构 -->
+        <div class="card">
+            <h2>🗄️ D1 数据库结构 (ice-db)</h2>
+            <h3>1. users 表</h3>
+            <p>存储所有注册用户及资料。</p>
+            <pre><code>CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  nickname TEXT,
+  qq_number TEXT,
+  avatar_url TEXT DEFAULT '',
+  birthday TEXT DEFAULT '',
+  gender TEXT DEFAULT '',
+  location TEXT DEFAULT '',
+  status TEXT DEFAULT 'active',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);</code></pre>
+
+            <h3>2. sessions 表</h3>
+            <p>用于多设备互踢（登录态检测）。当有人登录时，会在这里记录，如果已有记录则触发强制下线提示。</p>
+            <pre><code>CREATE TABLE sessions (
+  username TEXT PRIMARY KEY,
+  token TEXT NOT NULL,
+  device_ua TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);</code></pre>
+        </div>
+
+        <!-- 4. 全局通信机制 -->
+        <div class="card">
+            <h2>🔄 全局通信机制 (postMessage)</h2>
+            <p>你的网站采用了<strong>外层框架 + 内层 iframe</strong> 的架构，所有跨页面通信均通过 <code>window.postMessage</code> 完成，这是保证不刷新的核心。</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>消息类型</th>
                         <th>发送方</th>
                         <th>接收方</th>
-                        <th>载荷 (data)</th>
-                        <th>作用说明</th>
+                        <th>作用</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td><code>navigate</code></td>
-                        <td>导航/内容页</td>
+                        <td>导航/内页</td>
                         <td>外层框架</td>
-                        <td><code>url: 'xxx.html'</code></td>
-                        <td>命令 contentFrame 切换页面</td>
+                        <td>命令内容框切换页面</td>
                     </tr>
                     <tr>
                         <td><code>pageLoaded</code></td>
-                        <td>内容页</td>
+                        <td>内页</td>
                         <td>导航栏</td>
-                        <td><code>path: '/xxx'</code></td>
-                        <td>通知导航栏高亮对应菜单</td>
+                        <td>通知导航栏更新高亮与标题</td>
                     </tr>
                     <tr>
-                        <td><code>setActive</code></td>
-                        <td>外层框架</td>
-                        <td>导航栏</td>
-                        <td><code>page: 'xxx.html'</code></td>
-                        <td>显式设置导航栏高亮状态</td>
+                        <td><code>updateAuth</code></td>
+                        <td>登录/注册页</td>
+                        <td>外层框架 -> 导航栏</td>
+                        <td>通知导航栏刷新右上角用户状态</td>
                     </tr>
                     <tr>
                         <td><code>settingsToggle</code></td>
                         <td>导航栏</td>
                         <td>外层框架</td>
-                        <td><code>open: true/false</code></td>
-                        <td>通知框架撑开/收起顶部 iframe</td>
-                    </tr>
-                    <tr>
-                        <td><code>updateAuth</code></td>
-                        <td>登录页</td>
-                        <td>导航栏</td>
-                        <td>无</td>
-                        <td>通知导航栏刷新右上角状态</td>
-                    </tr>
-                    <tr>
-                        <td><code>themeChange</code></td>
-                        <td>导航栏</td>
-                        <td>外层框架</td>
-                        <td><code>theme: 'light/dark'</code></td>
-                        <td>同步亮暗色主题给内容 iframe</td>
+                        <td>撑开/收起顶部 iframe 高度，防遮挡</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- 4. 开发规范 -->
-        <div class="chat-bubble">
-            <h2>🎨 四、 新增页面的标准流程</h2>
-            <p>当你需要新加一个类似 <code>pages/supportmain.html</code> 的页面时，请遵循以下规范：</p>
-            <ol>
-                <li><strong>复制模板</strong>：复制一个现有页面（如 <code>aboutus.html</code>），删掉内部内容，保留 <code>&lt;head&gt;</code> 里的 CSS 变量。</li>
-                <li><strong>引入通信</strong>：确保页面底部有 <code>window.parent.postMessage({ type: 'pageLoaded', path: window.location.pathname }, '*');</code>，否则导航栏不会高亮。</li>
-                <li><strong>返回逻辑</strong>：所有返回主页的按钮，必须写成 <code>window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*');</code>（不能直接用 href 跳转，否则会破坏 iframe 框架）。</li>
-                <li><strong>主题同步</strong>：确保底部有一段读取 <code>localStorage.getItem('ice-theme')</code> 的脚本，以保持亮暗色统一。</li>
-            </ol>
-
-            <div class="alert alert-info">
-                💡 <strong>本地调试须知</strong>：因为包含 fetch 请求 XML/JSON，不能直接双击 HTML 打开，必须使用 Live Server 或本地服务器环境。
+        <!-- 5. 后端接口与安全 -->
+        <div class="card">
+            <h2>⚡ Worker 接口与安全配置</h2>
+            <p>所有后端逻辑都在 Cloudflare Worker 中，绑定了 D1 数据库，并配置了 CORS 跨域。</p>
+            <ul>
+                <li><strong>API_BASE</strong>: <code>https://api.iceapis.dpdns.org</code></li>
+                <li><strong>绑定变量名</strong>: <code>DB</code> (必须全大写)</li>
+                <li><strong>防火墙</strong>: 在 Cloudflare 的 WAF 里配置了限流，防止 F5 狂刷。</li>
+            </ul>
+            <div class="alert">
+                💡 <strong>关于维护模式</strong>：去根目录改 <code>res/state.xml</code>，把 <code>normal</code> 改成 <code>maintenance</code>，所有用户就会死死锁在错误提示页。非常适合大更新或修 Bug 时紧急熔断。
             </div>
+        </div>
+
+        <!-- 6. 常用 Git 命令 -->
+        <div class="card">
+            <h2>💻 常用 Git 与调试指令</h2>
+            <p>每次改完代码，在 Git Bash 中一键三连：</p>
+            <pre><code>git add .
+git commit -m "写点更新说明"
+git push origin main</code></pre>
+            <p>如果本地测出问题，想要清空所有登录状态重新测试（去 D1 控制台执行）：</p>
+            <pre><code>DELETE FROM sessions;</code></pre>
         </div>
 
         <a href="#" class="back-home" id="backHomeBtn">← 返回官网主页</a>
@@ -331,7 +256,7 @@
         let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
         document.documentElement.setAttribute('data-theme', theme);
 
-        // 返回首页 (tools 目录下，回退一级)
+        // 返回首页
         document.getElementById('backHomeBtn').addEventListener('click', function(e) {
             e.preventDefault();
             try {

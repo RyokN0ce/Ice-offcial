@@ -24,10 +24,7 @@
             border-radius: 24px; padding: 40px; position: relative;
         }
         
-        /* 头像样式 */
-        .avatar-wrapper {
-            position: relative; width: 120px; height: 120px; margin: 0 auto 20px;
-        }
+        .avatar-wrapper { position: relative; width: 120px; height: 120px; margin: 0 auto 20px; }
         .avatar-large {
             width: 100%; height: 100%; border-radius: 50%; background: var(--border);
             display: flex; align-items: center; justify-content: center;
@@ -36,18 +33,14 @@
         }
         .avatar-large img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* 编辑模式下头像可点击 */
         .avatar-upload-label {
-            position: absolute; bottom: 0; right: 0;
-            background: var(--button-bg); color: #fff;
-            width: 32px; height: 32px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border: 2px solid var(--card-bg);
-            font-size: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            position: absolute; bottom: 0; right: 0; background: var(--button-bg); color: #fff;
+            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: 2px solid var(--card-bg); font-size: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
             transition: transform 0.2s;
         }
         .avatar-upload-label:hover { transform: scale(1.1); }
-        input[type="file"] { display: none; } /* 隐藏原生丑陋的文件选择框 */
+        input[type="file"] { display: none; }
 
         h2 { text-align: center; font-size: 28px; margin-bottom: 6px; }
         .username-display { text-align: center; color: var(--text-secondary); font-size: 15px; margin-bottom: 30px; }
@@ -57,16 +50,15 @@
         .info-item .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
         .info-item .value { font-size: 16px; font-weight: 500; }
         
-        .edit-section { display: none; flex-direction: column; gap: 16px; }
+        .edit-section { display: none; flex-direction: column; gap: 16px; margin-top: 20px; }
         .input-group label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
         
-        /* 统一输入框和下拉框 */
-        input[type="text"], input[type="date"], select {
+        input[type="text"], input[type="password"], input[type="date"], select {
             width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
             background: var(--bg); color: var(--text); font-size: 15px; outline: none;
             font-family: inherit; transition: border 0.2s;
         }
-        input[type="text"]:focus, input[type="date"]:focus, select:focus {
+        input[type="text"]:focus, input[type="password"]:focus, input[type="date"]:focus, select:focus {
             border-color: var(--link);
         }
         
@@ -82,6 +74,12 @@
         .msg { text-align: center; font-size: 14px; margin-bottom: 16px; display: none; }
         .msg.error { color: #ff453a; }
         .msg.success { color: #30d158; }
+
+        /* 修改密码的特殊分隔线 */
+        .password-section {
+            margin-top: 30px; padding-top: 20px; border-top: 1px dashed var(--border);
+        }
+        .password-section h3 { font-size: 16px; margin-bottom: 15px; color: var(--text); }
     </style>
 </head>
 <body>
@@ -89,7 +87,6 @@
     <div class="profile-container">
         <div class="avatar-wrapper">
             <div class="avatar-large" id="avatarBox">👤</div>
-            <!-- 只有在编辑模式下才显示的上传小加号 -->
             <label class="avatar-upload-label" id="avatarUploadLabel" style="display: none;" for="fileInput">+</label>
             <input type="file" id="fileInput" accept="image/png, image/jpeg, image/jpg">
         </div>
@@ -102,22 +99,10 @@
         <!-- 只读展示区 -->
         <div id="viewMode">
             <div class="info-grid">
-                <div class="info-item">
-                    <div class="label">QQ 账号</div>
-                    <div class="value" id="displayQQ">未绑定</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">所在地</div>
-                    <div class="value" id="displayLocation">未填写</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">生日</div>
-                    <div class="value" id="displayBirthday">未填写</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">性别</div>
-                    <div class="value" id="displayGender">未填写</div>
-                </div>
+                <div class="info-item"><div class="label">QQ 账号</div><div class="value" id="displayQQ">未绑定</div></div>
+                <div class="info-item"><div class="label">所在地</div><div class="value" id="displayLocation">未填写</div></div>
+                <div class="info-item"><div class="label">生日</div><div class="value" id="displayBirthday">未填写</div></div>
+                <div class="info-item"><div class="label">性别</div><div class="value" id="displayGender">未填写</div></div>
             </div>
             <button id="editBtn" style="display: none;">编辑个人资料</button>
         </div>
@@ -128,7 +113,6 @@
                 <label>昵称</label>
                 <input type="text" id="inputNickname" placeholder="你的昵称">
             </div>
-            <!-- 移除了原来的 URL 输入框，改为提示文字 -->
             <div style="font-size: 12px; color: var(--text-secondary); margin-top: -10px; margin-bottom: 5px;">
                 * 点击上方头像右侧的 + 号即可上传本地图片
             </div>
@@ -144,7 +128,6 @@
                 </div>
                 <div class="input-group">
                     <label>生日</label>
-                    <!-- type="date" 自带日历选择器 -->
                     <input type="date" id="inputBirthday">
                 </div>
             </div>
@@ -159,7 +142,19 @@
             </div>
             <div class="btn-row">
                 <button class="btn-secondary" id="cancelBtn">取消</button>
-                <button id="saveBtn">保存</button>
+                <button id="saveBtn">保存资料</button>
+            </div>
+
+            <!-- 修改密码专区 -->
+            <div class="password-section">
+                <h3>🔒 修改密码</h3>
+                <div class="input-group">
+                    <input type="password" id="oldPassword" placeholder="请输入旧密码">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="newPassword" placeholder="请输入新密码">
+                </div>
+                <button class="btn-secondary" id="changePwdBtn" style="width: 100%; border: 1px solid var(--border); background: transparent; color: var(--text);">确认修改密码</button>
             </div>
         </div>
     </div>
@@ -169,7 +164,7 @@
         let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
         document.documentElement.setAttribute('data-theme', theme);
 
-        const API_BASE = 'https://api.iceapis.dpdns.org'; // ⚠️ 确保是你的新域名
+        const API_BASE = 'https://api.iceapis.dpdns.org'; 
         const urlParams = new URLSearchParams(window.location.search);
         const queryUser = urlParams.get('user');
         const currentUser = localStorage.getItem('ice_user');
@@ -178,7 +173,7 @@
         const isMyProfile = (targetUser === currentUser);
 
         const msgBox = document.getElementById('msgBox');
-        let currentAvatarBase64 = ""; // 用来暂存用户选的新头像
+        let currentAvatarBase64 = ""; 
 
         async function loadProfile() {
             if (!targetUser) {
@@ -196,14 +191,7 @@
                     document.getElementById('displayUsername').textContent = u.username;
                     document.getElementById('displayQQ').textContent = u.qq_number || "未绑定";
                     document.getElementById('displayLocation').textContent = u.location || "未填写";
-                    
-                    // 格式化生日显示
-                    if (u.birthday) {
-                        document.getElementById('displayBirthday').textContent = u.birthday;
-                    } else {
-                        document.getElementById('displayBirthday').textContent = "未填写";
-                    }
-                    
+                    document.getElementById('displayBirthday').textContent = u.birthday || "未填写";
                     document.getElementById('displayGender').textContent = u.gender || "未填写";
 
                     if (u.avatar_url) {
@@ -217,16 +205,10 @@
                         document.getElementById('inputLocation').value = u.location || "";
                         document.getElementById('inputBirthday').value = u.birthday || "";
                         document.getElementById('inputGender').value = u.gender || "";
-                        
-                        // 初始化 Base64 暂存
                         currentAvatarBase64 = u.avatar_url || ""; 
                     }
-                } else {
-                    document.getElementById('displayNickname').textContent = "用户不存在";
                 }
-            } catch (e) {
-                document.getElementById('displayNickname').textContent = "网络错误";
-            }
+            } catch (e) {}
         }
 
         loadProfile();
@@ -235,13 +217,12 @@
         document.getElementById('editBtn').onclick = () => {
             document.getElementById('viewMode').style.display = 'none';
             document.getElementById('editMode').style.display = 'flex';
-            document.getElementById('avatarUploadLabel').style.display = 'flex'; // 显示上传小按钮
+            document.getElementById('avatarUploadLabel').style.display = 'flex';
         };
         document.getElementById('cancelBtn').onclick = () => {
             document.getElementById('viewMode').style.display = 'block';
             document.getElementById('editMode').style.display = 'none';
-            document.getElementById('avatarUploadLabel').style.display = 'none'; // 隐藏上传小按钮
-            // 恢复原来的头像
+            document.getElementById('avatarUploadLabel').style.display = 'none';
             if(currentAvatarBase64) {
                 document.getElementById('avatarBox').innerHTML = `<img src="${currentAvatarBase64}">`;
             } else {
@@ -249,31 +230,26 @@
             }
         };
 
-        // ===== 处理本地图片上传并预览 =====
+        // 处理本地图片
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
-
-            // 限制图片大小（比如限制在 2MB 内，防止 D1 数据库爆掉）
             if (file.size > 2 * 1024 * 1024) {
                 msgBox.className = 'msg error';
                 msgBox.textContent = "图片太大了，请选择小于 2MB 的图片";
                 msgBox.style.display = 'block';
-                this.value = ''; // 清空选择
+                this.value = ''; 
                 return;
             }
-
             const reader = new FileReader();
             reader.onload = function(event) {
-                // 拿到 Base64 字符串
                 currentAvatarBase64 = event.target.result;
-                // 实时预览在头像上
                 document.getElementById('avatarBox').innerHTML = `<img src="${currentAvatarBase64}">`;
             };
             reader.readAsDataURL(file);
         });
 
-        // 保存修改
+        // 保存资料
         document.getElementById('saveBtn').onclick = async function() {
             this.disabled = true;
             this.textContent = "保存中...";
@@ -282,7 +258,7 @@
             const payload = {
                 username: currentUser,
                 nickname: document.getElementById('inputNickname').value.trim(),
-                avatar_url: currentAvatarBase64, // 直接把 Base64 存进去
+                avatar_url: currentAvatarBase64,
                 qq: document.getElementById('inputQQ').value.trim(),
                 location: document.getElementById('inputLocation').value.trim(),
                 birthday: document.getElementById('inputBirthday').value,
@@ -295,16 +271,51 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+                if (res.ok) {
+                    msgBox.className = 'msg success';
+                    msgBox.textContent = "资料保存成功！";
+                    msgBox.style.display = 'block';
+                    setTimeout(() => { location.reload(); }, 1000);
+                }
+            } catch (e) {} finally {
+                this.disabled = false;
+                this.textContent = "保存资料";
+            }
+        };
+
+        // 修改密码
+        document.getElementById('changePwdBtn').onclick = async function() {
+            const oldPwd = document.getElementById('oldPassword').value.trim();
+            const newPwd = document.getElementById('newPassword').value.trim();
+            
+            if (!oldPwd || !newPwd) {
+                msgBox.className = 'msg error';
+                msgBox.textContent = "请填写旧密码和新密码";
+                msgBox.style.display = 'block';
+                return;
+            }
+
+            this.disabled = true;
+            this.textContent = "正在修改...";
+            msgBox.style.display = 'none';
+
+            try {
+                const res = await fetch(API_BASE + '/api/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: currentUser, oldPassword: oldPwd, newPassword: newPwd })
+                });
+                const data = await res.json();
                 
                 if (res.ok) {
                     msgBox.className = 'msg success';
-                    msgBox.textContent = "保存成功！";
+                    msgBox.textContent = "密码修改成功！下次请用新密码登录。";
                     msgBox.style.display = 'block';
-                    setTimeout(() => { location.reload(); }, 1000);
+                    document.getElementById('oldPassword').value = '';
+                    document.getElementById('newPassword').value = '';
                 } else {
-                    const d = await res.json();
                     msgBox.className = 'msg error';
-                    msgBox.textContent = d.error || "保存失败";
+                    msgBox.textContent = data.error || "修改失败";
                     msgBox.style.display = 'block';
                 }
             } catch (e) {
@@ -313,7 +324,7 @@
                 msgBox.style.display = 'block';
             } finally {
                 this.disabled = false;
-                this.textContent = "保存";
+                this.textContent = "确认修改密码";
             }
         };
 
