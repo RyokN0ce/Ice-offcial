@@ -124,9 +124,11 @@ const DaySelect = (function() {
             titleText.textContent = `${startYear} - ${startYear + 11} 年`;
             document.getElementById('ds-days-view').style.display = 'none';
             pickerGrid.classList.add('show');
-            // 年份视图隐藏左右箭头，直接点选更快
-            document.getElementById('ds-prev').style.display = 'none';
-            document.getElementById('ds-next').style.display = 'none';
+            
+            // 恢复左右箭头
+            document.getElementById('ds-prev').style.display = 'block';
+            document.getElementById('ds-next').style.display = 'block';
+            
             renderYears(startYear);
         }
     }
@@ -149,7 +151,7 @@ const DaySelect = (function() {
         daysGrid.querySelectorAll('.ds-day:not(.empty)').forEach(el => {
             el.onclick = function() {
                 selectedDate = new Date(year, month, parseInt(this.getAttribute('data-day')));
-                currentDate = new Date(selectedDate); // 同步
+                currentDate = new Date(selectedDate);
                 render();
             };
         });
@@ -169,7 +171,7 @@ const DaySelect = (function() {
             el.onclick = function() {
                 currentDate.setFullYear(year);
                 currentDate.setMonth(parseInt(this.getAttribute('data-month')));
-                currentView = 'days'; // 选完月自动切回日期
+                currentView = 'days';
                 render();
             };
         });
