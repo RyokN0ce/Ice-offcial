@@ -209,9 +209,14 @@
                     document.getElementById('displayGender').textContent = u.gender ? u.gender : "保密";
 
                     if (u.avatar_url) {
-                        document.getElementById('avatarBox').innerHTML = `<img src="${u.avatar_url}" onerror="this.parentElement.innerHTML='👤'">`;
+                        const avatarBox = document.getElementById('avatarBox');
+                        avatarBox.innerHTML = `<img src="${u.avatar_url}" onerror="this.parentElement.innerHTML='👤'">`;
+                        // 动态绑定点击事件，避免特殊字符破坏 onclick
+                        avatarBox.querySelector('img').style.cursor = 'zoom-in';
+                        avatarBox.querySelector('img').onclick = function() {
+                            PhotoView.open(u.avatar_url);
+                        };
                     }
-
                     if (isMyProfile) {
                         // 💡 同步昵称到本地缓存，让导航栏立刻更新
                         if(u.nickname) localStorage.setItem('ice_nickname', u.nickname);
@@ -256,10 +261,14 @@
             document.getElementById('viewMode').style.display = 'block';
             document.getElementById('editMode').style.display = 'none';
             document.getElementById('avatarUploadLabel').style.display = 'none';
+            const avatarBox = document.getElementById('avatarBox');
             if(currentAvatarBase64) {
-                document.getElementById('avatarBox').innerHTML = `<img src="${currentAvatarBase64}" onclick="PhotoView.open('${currentAvatarBase64}')">`;
+                avatarBox.innerHTML = `<img src="${currentAvatarBase64}" style="cursor: zoom-in;">`;
+                avatarBox.querySelector('img').onclick = function() {
+                    PhotoView.open(currentAvatarBase64);
+                };
             } else {
-                document.getElementById('avatarBox').innerHTML = `👤`;
+                avatarBox.innerHTML = `👤`;
             }
         };
 
