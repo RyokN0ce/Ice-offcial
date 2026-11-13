@@ -9,30 +9,45 @@
 <body>
 
     <nav class="global-nav">
-        <ul>
+        <!-- 手机端汉堡按钮 (左侧) -->
+        <div class="mobile-toggle" id="mobileToggle">☰</div>
+        
+        <!-- 手机端中央显示的当前高亮页 -->
+        <div class="mobile-current-title" id="mobileCurrentTitle">冰冰冰官网</div>
+        
+        <ul id="navMenu">
+            <!-- 折叠菜单里的项 -->
             <li class="logo-placeholder"><a href="#" data-nav="main.html">🧊冰冰冰官网</a></li>
             <li id="navWhat"><a href="#" data-nav="whatice.html">什么是冰冰冰</a></li>
             <li><a href="#" data-nav="#">探索冰冰冰档案馆</a></li>
             <li><a href="#" data-nav="#">冰冰冰社区</a></li>
             <li id="navSupport"><a href="#" data-nav="pages/supportmain.html">支持</a></li>
             <li id="navAbout"><a href="#" data-nav="aboutus.html">关于</a></li>
+            
+            <!-- 手机端专属：把登录/注册塞进折叠菜单 -->
+            <li class="mobile-only-auth">
+                <a href="#" id="mobileLoginBtn">登录</a>
+            </li>
+            <li class="mobile-only-auth">
+                <a href="#" id="mobileRegisterBtn">注册</a>
+            </li>
         </ul>
     </nav>
 
+    <!-- 右侧按钮组 -->
     <div class="nav-right-group">
-        <!-- 登录/用户菜单 容器 -->
-        <div class="user-menu-container">
+        <!-- 桌面端的登录/用户菜单 -->
+        <div class="user-menu-container desktop-only-auth">
             <a href="#" class="nav-btn btn-login" id="navLoginBtn">登录</a>
-            
-            <!-- 悬浮下拉菜单 -->
             <div class="user-dropdown" id="userDropdown">
                 <a href="#" id="menuProfileBtn">个人主页</a>
                 <div class="dropdown-divider"></div>
                 <a href="#" id="menuLogoutBtn">退出登录</a>
             </div>
         </div>
+        <a href="#" class="nav-btn btn-register desktop-only-auth" id="navRegisterBtn">注册</a>
         
-        <a href="#" class="nav-btn btn-register" id="navRegisterBtn">注册</a>
+        <!-- 设置按钮 (全端显示) -->
         <div class="settings-btn" id="settingsBtn" title="设置">⚙️</div>
     </div>
 
@@ -67,28 +82,35 @@
     <audio id="bgMusic" loop preload="none"></audio>
 
     <script>
-        // ===== 设置面板开关 =====
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsPanel = document.getElementById('settingsPanel');
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navMenu = document.getElementById('navMenu');
 
+        // ===== 设置面板 =====
         settingsBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             const isOpen = settingsPanel.classList.toggle('open');
-            try {
-                window.parent.postMessage({ type: 'settingsToggle', open: isOpen }, '*');
-            } catch (err) {}
+            try { window.parent.postMessage({ type: 'settingsToggle', open: isOpen }, '*'); } catch (err) {}
         });
 
         document.addEventListener('click', function(e) {
             if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
                 if (settingsPanel.classList.contains('open')) {
                     settingsPanel.classList.remove('open');
-                    try {
-                        window.parent.postMessage({ type: 'settingsToggle', open: false }, '*');
-                    } catch (err) {}
+                    try { window.parent.postMessage({ type: 'settingsToggle', open: false }, '*'); } catch (err) {}
                 }
             }
         });
+
+        // ===== 手机端汉堡菜单 =====
+        if (mobileToggle) {
+            mobileToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isOpen = navMenu.classList.toggle('show-mobile-menu');
+                try { window.parent.postMessage({ type: 'settingsToggle', open: isOpen }, '*'); } catch (err) {}
+            });
+        }
 
         // ===== 导航点击 =====
         document.querySelectorAll('[data-nav]').forEach(link => {
@@ -97,20 +119,30 @@
                 const url = this.dataset.nav;
                 if (url && url !== '#') {
                     window.parent.postMessage({ type: 'navigate', url: url }, '*');
+                    if (navMenu.classList.contains('show-mobile-menu')) {
+                        navMenu.classList.remove('show-mobile-menu');
+                        try { window.parent.postMessage({ type: 'settingsToggle', open: false }, '*'); } catch (err) {}
+                    }
                 }
             });
         });
 
-        // ===== 高亮逻辑 =====
+        // ===== 高亮逻辑 (同时更新手机端中央文字) =====
         function setActive(page) {
             document.querySelectorAll('.global-nav li').forEach(li => li.classList.remove('nav-active'));
+            const mobileTitle = document.getElementById('mobileCurrentTitle');
             
             if (page.includes('aboutus')) {
                 document.getElementById('navAbout').classList.add('nav-active');
+                if (mobileTitle) mobileTitle.textContent = '关于';
             } else if (page.includes('whatice')) {
                 document.getElementById('navWhat').classList.add('nav-active');
+                if (mobileTitle) mobileTitle.textContent = '什么是冰冰冰';
             } else if (page.includes('supportmain') || page.includes('support')) {
                 document.getElementById('navSupport').classList.add('nav-active');
+                if (mobileTitle) mobileTitle.textContent = '支持';
+            } else {
+                if (mobileTitle) mobileTitle.textContent = '冰冰冰官网';
             }
         }
         setActive('main.html');
@@ -123,70 +155,81 @@
         // ===== 登录/注册 状态处理 =====
         const loginBtn = document.getElementById('navLoginBtn');
         const registerBtn = document.getElementById('navRegisterBtn');
-        const menuProfileBtn = document.getElementById('menuProfileBtn');
-        const menuLogoutBtn = document.getElementById('menuLogoutBtn');
+        const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+        const mobileRegisterBtn = document.getElementById('mobileRegisterBtn');
+        
+        function handleLoginClick(e) {
+            e.preventDefault();
+            let targetPage = 'main.html';
+            try {
+                const contentFrame = window.parent.document.getElementById('contentFrame');
+                let path = contentFrame.contentWindow.location.pathname;
+                let filename = path.substring(path.lastIndexOf('/') + 1);
+                if (filename) targetPage = filename;
+            } catch (err) {}
+            try {
+                window.parent.postMessage({ type: 'navigate', url: 'tools/login.html?from=' + targetPage }, '*');
+            } catch (err) {}
+        }
 
         function updateAuthUI() {
             const currentUser = localStorage.getItem('ice_user');
+            
             if (currentUser) {
-                // 已登录
                 loginBtn.textContent = currentUser;
                 loginBtn.className = 'nav-btn btn-user';
                 registerBtn.style.display = 'none';
                 loginBtn.onclick = function(e) { e.preventDefault(); };
             } else {
-                // 未登录
                 loginBtn.textContent = '登录';
                 loginBtn.className = 'nav-btn btn-login';
                 registerBtn.style.display = '';
-                loginBtn.onclick = function(e) {
-                    e.preventDefault();
-                    let targetPage = 'main.html';
-                    // 尝试读取当前内容框的路径，作为登录后的返回目标
-                    try {
-                        const contentFrame = window.parent.document.getElementById('contentFrame');
-                        let path = contentFrame.contentWindow.location.pathname;
-                        let filename = path.substring(path.lastIndexOf('/') + 1);
-                        if (filename) targetPage = filename;
-                    } catch (err) {}
+                loginBtn.onclick = handleLoginClick;
+            }
 
-                    try {
-                        window.parent.postMessage({ type: 'navigate', url: 'tools/login.html?from=' + targetPage }, '*');
-                    } catch (err) {}
-                };
+            if (currentUser) {
+                if (mobileLoginBtn) mobileLoginBtn.textContent = '个人中心 (' + currentUser + ')';
+                if (mobileRegisterBtn) mobileRegisterBtn.parentElement.style.display = 'none';
+            } else {
+                if (mobileLoginBtn) mobileLoginBtn.textContent = '登录';
+                if (mobileRegisterBtn) mobileRegisterBtn.parentElement.style.display = 'block';
             }
         }
         updateAuthUI();
+
+        if (mobileLoginBtn) mobileLoginBtn.onclick = function(e) {
+            if (localStorage.getItem('ice_user')) {
+                e.preventDefault();
+                alert('个人主页暂未实现');
+            } else {
+                handleLoginClick(e);
+            }
+        };
+        if (mobileRegisterBtn) mobileRegisterBtn.onclick = function(e) {
+            e.preventDefault();
+            try { window.parent.postMessage({ type: 'navigate', url: 'pages/sign-in.html' }, '*'); } catch (err) {}
+        };
+        registerBtn.onclick = function(e) {
+            e.preventDefault();
+            try { window.parent.postMessage({ type: 'navigate', url: 'pages/sign-in.html' }, '*'); } catch (err) {}
+        };
 
         window.addEventListener('message', function(event) {
             if (event.data && event.data.type === 'updateAuth') updateAuthUI();
         });
 
-        // 注册按钮（指向 sign-in.html）
-        registerBtn.onclick = function(e) {
-            e.preventDefault();
-            try {
-                window.parent.postMessage({ type: 'navigate', url: 'pages/sign-in.html' }, '*');
-            } catch (err) {}
-        };
-
-        // 菜单内功能
-        menuProfileBtn.onclick = function(e) {
-            e.preventDefault();
-            alert('个人主页暂未实现');
-        };
-
+        // 下拉菜单
+        const menuProfileBtn = document.getElementById('menuProfileBtn');
+        const menuLogoutBtn = document.getElementById('menuLogoutBtn');
+        menuProfileBtn.onclick = function(e) { e.preventDefault(); alert('个人主页暂未实现'); };
         menuLogoutBtn.onclick = function(e) {
             e.preventDefault();
             localStorage.removeItem('ice_user');
             document.cookie = "ice_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             updateAuthUI();
-            try {
-                window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*');
-            } catch (err) {}
+            try { window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*'); } catch (err) {}
         };
 
-        // ===== 下拉菜单悬浮控制（含防抖） =====
         const userMenuContainer = document.querySelector('.user-menu-container');
         const userDropdown = document.getElementById('userDropdown');
         let dropdownTimeout;
@@ -195,19 +238,15 @@
             clearTimeout(dropdownTimeout);
             if (localStorage.getItem('ice_user')) {
                 userDropdown.classList.add('show');
-                try {
-                    window.parent.postMessage({ type: 'settingsToggle', open: true }, '*');
-                } catch (e) {}
+                try { window.parent.postMessage({ type: 'settingsToggle', open: true }, '*'); } catch (e) {}
             }
         }
 
         function closeDropdown() {
             dropdownTimeout = setTimeout(() => {
                 userDropdown.classList.remove('show');
-                if (!settingsPanel.classList.contains('open')) {
-                    try {
-                        window.parent.postMessage({ type: 'settingsToggle', open: false }, '*');
-                    } catch (e) {}
+                if (!settingsPanel.classList.contains('open') && !navMenu.classList.contains('show-mobile-menu')) {
+                    try { window.parent.postMessage({ type: 'settingsToggle', open: false }, '*'); } catch (e) {}
                 }
             }, 150);
         }

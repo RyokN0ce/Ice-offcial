@@ -37,11 +37,10 @@ html, body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     overflow: hidden;
     min-height: 48px;
-    pointer-events: none; /* 穿透背景 */
+    pointer-events: none;
 }
 
-/* 导航栏及菜单可点击 */
-.global-nav, .nav-right-group, .settings-panel {
+.global-nav, .nav-right-group, .settings-panel, .mobile-toggle {
     pointer-events: auto;
 }
 
@@ -77,7 +76,12 @@ html, body {
 .global-nav .logo-placeholder { font-weight: 600; font-size: 16px; opacity: 1; margin-right: 12px; }
 .global-nav .nav-active { opacity: 1; font-weight: 700; }
 
-/* ===== 右侧按钮组 ===== */
+/* 手机端专属元素的默认状态 */
+.mobile-toggle, .mobile-current-title, .mobile-only-auth {
+    display: none;
+}
+
+/* 右侧按钮组 */
 .nav-right-group {
     position: absolute;
     right: 24px;
@@ -111,97 +115,44 @@ html, body {
 .btn-register { background-color: transparent; color: var(--nav-text) !important; border: 1px solid rgba(255, 255, 255, 0.4); }
 .btn-register:hover { background-color: rgba(255, 255, 255, 0.1); border-color: #ffffff; }
 
-/* ===== 用户悬浮菜单 ===== */
-.user-menu-container {
-    position: relative;
-    display: inline-block;
-    pointer-events: auto;
-}
-
+/* 用户悬浮菜单 */
+.user-menu-container { position: relative; display: inline-block; pointer-events: auto; }
 .user-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 8px;
-    background-color: var(--panel-bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 12px;
-    box-shadow: var(--panel-shadow);
-    padding: 6px 0;
-    width: 130px;
-    display: none; 
-    flex-direction: column;
-    z-index: 1002;
-    opacity: 0;
-    translate: 0 -6px;
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    margin-top: 8px; background-color: var(--panel-bg); border: 1px solid var(--panel-border);
+    border-radius: 12px; box-shadow: var(--panel-shadow); padding: 6px 0; width: 130px;
+    display: none; flex-direction: column; z-index: 1002; opacity: 0; translate: 0 -6px;
     transition: opacity 0.2s ease, translate 0.2s ease;
 }
-
-.user-dropdown.show {
-    display: flex;
-    opacity: 1;
-    translate: 0 0;
-}
-
+.user-dropdown.show { display: flex; opacity: 1; translate: 0 0; }
 .user-dropdown a {
-    display: block;
-    padding: 10px 18px;
-    color: var(--text) !important;
-    font-size: 13px;
-    text-decoration: none !important;
-    text-align: center;
-    transition: background-color 0.2s ease;
+    display: block; padding: 10px 18px; color: var(--text) !important; font-size: 13px;
+    text-decoration: none !important; text-align: center; transition: background-color 0.2s ease;
 }
-
 .user-dropdown a:hover { background-color: var(--card-bg); }
 .dropdown-divider { height: 1px; background-color: var(--divider); margin: 4px 0; }
 
-/* ===== 设置按钮 ===== */
+/* 设置按钮 */
 .settings-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: var(--card-bg);
-    border: 1px solid var(--panel-border);
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 16px;
-    transition: transform 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    flex-shrink: 0;
+    width: 32px; height: 32px; border-radius: 50%; background-color: var(--card-bg);
+    border: 1px solid var(--panel-border); color: var(--text); display: flex;
+    align-items: center; justify-content: center; cursor: pointer; font-size: 16px;
+    transition: transform 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.08); flex-shrink: 0;
 }
 .settings-btn:hover { transform: scale(1.08); }
 
-/* ===== 设置面板 ===== */
+/* 设置面板 */
 .settings-panel {
-    position: fixed;
-    top: 48px;
-    right: 24px;
-    z-index: 1000;
-    width: 280px;
-    background-color: var(--panel-bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 16px;
-    box-shadow: var(--panel-shadow);
-    padding: 20px;
-    display: none;
-    flex-direction: column;
-    gap: 16px;
-    margin-top: 4px;
-    pointer-events: auto;
+    position: fixed; top: 48px; right: 24px; z-index: 1000; width: 280px;
+    background-color: var(--panel-bg); border: 1px solid var(--panel-border);
+    border-radius: 16px; box-shadow: var(--panel-shadow); padding: 20px;
+    display: none; flex-direction: column; gap: 16px; margin-top: 4px; pointer-events: auto;
 }
-
 .settings-panel.open { display: flex; animation: panelIn 0.22s ease; }
-
 @keyframes panelIn {
     from { opacity: 0; transform: translateY(-8px) scale(0.97); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
-
 .settings-panel h3 { font-size: 13px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 2px; }
 .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--text); }
 .setting-row label { cursor: pointer; flex: 1; }
@@ -230,18 +181,101 @@ html, body {
 .music-select:focus { border-color: var(--link); }
 .setting-divider { height: 1px; background-color: var(--panel-border); margin: 2px 0; }
 
+/* ===== 基础响应式 ===== */
 @media (max-width: 1024px) {
     .nav-right-group { gap: 8px; }
     .nav-btn { padding: 0 10px; font-size: 12px; }
 }
 
+/* ================================================================= */
+/* ===== 手机端完全体适配（纯 CSS 媒体查询，绝对稳定） ===== */
+/* ================================================================= */
+/* ================================================================= */
+/* ===== 手机端完全体适配（纯 CSS 媒体查询，绝对稳定） ===== */
+/* ================================================================= */
 @media (max-width: 768px) {
-    .btn-register { display: none; }
-    .nav-right-group { right: 16px; }
-    .settings-panel { right: 16px; top: 44px; }
-    .global-nav ul { gap: 16px; }
-}
+    .global-nav {
+        justify-content: center;
+        padding: 0 12px;
+        /* 删掉 overflow: visible; 和 z-index，让它回归普通流 */
+    }
 
-@media (max-width: 480px) {
-    .settings-panel { width: calc(100vw - 32px); right: 16px; }
+    .desktop-only-auth { display: none !important; }
+
+    .mobile-toggle {
+        display: block;
+        color: var(--nav-text);
+        font-size: 24px;
+        cursor: pointer;
+        position: absolute;
+        left: 12px;
+        top: 8px;
+        z-index: 1002;
+        pointer-events: auto;
+    }
+
+    .mobile-current-title {
+        display: block;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--nav-text);
+        text-align: center;
+        z-index: 999;
+        pointer-events: auto;
+    }
+
+    .mobile-only-auth {
+        display: block;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* 👇 核心修改：直接使用 fixed 定位，脱离父元素限制 👇 */
+    .global-nav ul {
+        display: none; 
+        position: fixed; /* 改为 fixed */
+        top: 48px;
+        left: 0;
+        width: 100vw; /* 强制全屏宽度 */
+        height: auto;
+        background-color: var(--nav-bg);
+        flex-direction: column;
+        padding: 10px 0;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        z-index: 9999; /* 极高层级 */
+        pointer-events: auto; /* 必须允许点击 */
+    }
+
+    .global-nav ul.show-mobile-menu {
+        display: flex;
+    }
+
+    .global-nav li {
+        padding: 14px 24px;
+        width: 100%;
+        text-align: center;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        pointer-events: auto; /* 必须允许点击 */
+    }
+
+    .logo-placeholder { display: none; }
+
+    .nav-right-group {
+        right: 12px;
+        top: 10px;
+        gap: 8px;
+    }
+
+    .settings-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        pointer-events: auto;
+    }
+
+    .settings-panel {
+        width: calc(100vw - 24px);
+        right: 12px;
+        top: 48px;
+        pointer-events: auto;
+    }
 }
