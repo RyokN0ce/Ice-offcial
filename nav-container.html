@@ -166,7 +166,7 @@
         registerBtn.onclick = function(e) {
             e.preventDefault();
             try {
-                window.parent.postMessage({ type: 'navigate', url: 'sign-in.html' }, '*');
+                window.parent.postMessage({ type: 'navigate', url: 'pages/sign-in.html' }, '*');
             } catch (err) {}
         };
 
