@@ -136,27 +136,39 @@
         }
         setTimeout(updateNavUI, 500);
 
-        // ===== 导航点击 =====
+        // ===== 导航点击 (修复折叠遮挡Bug) =====
         document.querySelectorAll('[data-nav]').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 const url = this.dataset.nav;
                 if (url && url !== '#') {
                     window.parent.postMessage({ type: 'navigate', url: url }, '*');
+                    
+                    // 点击后强制关闭手机菜单，并通知外层缩回高度
                     if (navMenu.classList.contains('show-mobile-menu')) {
                         navMenu.classList.remove('show-mobile-menu');
-                        try { window.parent.postMessage({ type: 'settingsToggle', open: false }, '*'); } catch (err) {}
+                        try { 
+                            window.parent.postMessage({ type: 'settingsToggle', open: false }, '*'); 
+                        } catch (err) {}
                     }
                     setTimeout(updateNavUI, 300);
                 }
             });
         });
 
-        // ===== 消息监听 =====
+        // ===== 消息监听 (修复二次残留Bug) =====
         window.addEventListener('message', function(event) {
             if (event.data && (event.data.type === 'pageLoaded' || event.data.type === 'setActive' || event.data.type === 'updateAuth')) {
                 updateNavUI();
                 updateAuthUI();
+                
+                // 只要页面发生跳转，强制收起手机折叠菜单并恢复高度
+                if (navMenu.classList.contains('show-mobile-menu')) {
+                    navMenu.classList.remove('show-mobile-menu');
+                    try { 
+                        window.parent.postMessage({ type: 'settingsToggle', open: false }, '*'); 
+                    } catch (err) {}
+                }
             }
         });
 
@@ -184,7 +196,6 @@
 
         function updateAuthUI() {
             const currentUser = localStorage.getItem('ice_user');
-            // 如果有存昵称就显示昵称，否则显示用户名
             const currentNickname = localStorage.getItem('ice_nickname') || currentUser;
 
             if (currentUser) {
@@ -238,7 +249,7 @@
             }
             localStorage.removeItem('ice_user');
             localStorage.removeItem('ice_token');
-            localStorage.removeItem('ice_nickname'); // 退出时顺便清空昵称
+            localStorage.removeItem('ice_nickname');
             document.cookie = "ice_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             updateAuthUI();
             try { window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*'); } catch (err) {}

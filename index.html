@@ -20,7 +20,6 @@
             width: 100%;
             height: 48px;
             border: none;
-            /* 👇 核心修复：确保导航层永远盖在内容层之上 */
             z-index: 99999; 
             transition: height 0.22s ease;
         }
@@ -35,7 +34,6 @@
             z-index: 1;
         }
         
-        /* 手机端菜单展开时，禁止底层页面滚动 */
         .is-mobile body.menu-open {
             overflow: hidden;
         }
@@ -89,15 +87,10 @@
                 }
                 contentFrame.src = data.url;
             }
-            // 接收来自内层 iframe 的登录状态更新，转发给顶栏
-            if (data.type === 'updateAuth') {
-                try {
-                    navFrame.contentWindow.postMessage({ type: 'updateAuth' }, '*');
-                } catch (e) {}
-            }
+
             // 处理菜单展开和设置面板
             if (data.type === 'settingsToggle') {
-                // 如果是展开，撑开到整个屏幕高度
+                // 👇 核心：展开时撑开到 100vh，关闭时立刻缩回 48px
                 navFrame.style.height = data.open ? '100vh' : '48px';
                 
                 if (data.open) {
