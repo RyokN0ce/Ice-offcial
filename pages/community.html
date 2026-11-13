@@ -68,7 +68,7 @@
         let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
         document.documentElement.setAttribute('data-theme', theme);
 
-        const API_BASE = 'https://ice-apis.ryokn0ce.workers.dev'; // ⚠️ 替换为你的 Worker 链接
+        const API_BASE = 'https://api.iceapis.dpdns.org';// ⚠️ 替换为你的 Worker 链接
 
         // ⚠️ 注意：这个搜索需要 Worker 提供一个 `/api/search` 接口（我们下一步写）
         async function doSearch() {
