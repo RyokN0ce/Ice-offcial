@@ -1,6 +1,7 @@
 /* tools/dayselect.js */
 const DaySelect = (function() {
-    let overlay, panel, daysGrid, titleText;
+    let overlay, daysGrid, titleText, pickerGrid;
+    let currentView = 'days'; // 'days' | 'months' | 'years'
     let currentDate = new Date();
     let selectedDate = null;
     let onSelectCallback = null;
@@ -8,7 +9,6 @@ const DaySelect = (function() {
     function init() {
         if(document.getElementById('ds-overlay')) return;
         
-        // 注入 HTML
         overlay = document.createElement('div');
         overlay.className = 'ds-overlay';
         overlay.id = 'ds-overlay';
@@ -19,35 +19,77 @@ const DaySelect = (function() {
             <div class="ds-panel">
                 <div class="ds-header">
                     <button type="button" id="ds-prev">◀</button>
-                    <span id="ds-title"></span>
+                    <div class="ds-title" id="ds-title">
+                        <span id="ds-title-text"></span>
+                        <span class="arrow">▼</span>
+                    </div>
                     <button type="button" id="ds-next">▶</button>
                 </div>
-                <div class="ds-weekdays">
-                    ${daysOfWeek.map(d => `<div>${d}</div>`).join('')}
+                
+                <!-- 正常日期视图 -->
+                <div id="ds-days-view">
+                    <div class="ds-weekdays">
+                        ${daysOfWeek.map(d => `<div>${d}</div>`).join('')}
+                    </div>
+                    <div class="ds-days" id="ds-days"></div>
                 </div>
-                <div class="ds-days" id="ds-days"></div>
+
+                <!-- 快捷月/年选择视图 -->
+                <div class="ds-picker" id="ds-picker"></div>
+
                 <div class="ds-footer">
-                    <button type="button" class="ds-btn-cancel" id="ds-cancel">取消</button>
-                    <button type="button" class="ds-btn-confirm" id="ds-confirm">确定</button>
+                    <button type="button" class="ds-today" id="ds-today">回到今日</button>
+                    <div class="ds-actions">
+                        <button type="button" class="ds-btn-cancel" id="ds-cancel">取消</button>
+                        <button type="button" class="ds-btn-confirm" id="ds-confirm">确定</button>
+                    </div>
                 </div>
             </div>
         `;
         document.body.appendChild(overlay);
 
         daysGrid = document.getElementById('ds-days');
-        titleText = document.getElementById('ds-title');
+        pickerGrid = document.getElementById('ds-picker');
+        titleText = document.getElementById('ds-title-text');
+        const titleBtn = document.getElementById('ds-title');
 
-        // 绑定事件
-        document.getElementById('ds-prev').onclick = () => { currentDate.setMonth(currentDate.getMonth() - 1); render(); };
-        document.getElementById('ds-next').onclick = () => { currentDate.setMonth(currentDate.getMonth() + 1); render(); };
+        // 切换视图
+        titleBtn.onclick = () => {
+            if (currentView === 'days') {
+                currentView = 'months';
+            } else if (currentView === 'months') {
+                currentView = 'years';
+            } else {
+                currentView = 'days';
+            }
+            render();
+        };
+
+        document.getElementById('ds-prev').onclick = () => { 
+            if (currentView === 'days') currentDate.setMonth(currentDate.getMonth() - 1);
+            else if (currentView === 'months') currentDate.setFullYear(currentDate.getFullYear() - 1);
+            else currentDate.setFullYear(currentDate.getFullYear() - 12);
+            render(); 
+        };
+        document.getElementById('ds-next').onclick = () => { 
+            if (currentView === 'days') currentDate.setMonth(currentDate.getMonth() + 1);
+            else if (currentView === 'months') currentDate.setFullYear(currentDate.getFullYear() + 1);
+            else currentDate.setFullYear(currentDate.getFullYear() + 12);
+            render(); 
+        };
         document.getElementById('ds-cancel').onclick = close;
         
-        // 点击遮罩层关闭
+        document.getElementById('ds-today').onclick = () => {
+            selectedDate = new Date();
+            currentDate = new Date();
+            currentView = 'days';
+            render();
+        };
+
         overlay.onclick = (e) => { if(e.target === overlay) close(); };
 
         document.getElementById('ds-confirm').onclick = () => {
             if(selectedDate && onSelectCallback) {
-                // 格式化为 YYYY-MM-DD
                 const y = selectedDate.getFullYear();
                 const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
                 const d = String(selectedDate.getDate()).padStart(2, '0');
@@ -61,33 +103,94 @@ const DaySelect = (function() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         
-        titleText.textContent = `${year} 年 ${month + 1} 月`;
+        // 渲染顶部标题
+        if (currentView === 'days') {
+            titleText.textContent = `${year} 年 ${month + 1} 月`;
+            document.getElementById('ds-days-view').style.display = 'block';
+            pickerGrid.classList.remove('show');
+            document.getElementById('ds-prev').style.display = 'block';
+            document.getElementById('ds-next').style.display = 'block';
+            renderDays(year, month);
+        } else if (currentView === 'months') {
+            titleText.textContent = `${year} 年`;
+            document.getElementById('ds-days-view').style.display = 'none';
+            pickerGrid.classList.add('show');
+            document.getElementById('ds-prev').style.display = 'block';
+            document.getElementById('ds-next').style.display = 'block';
+            renderMonths(year);
+        } else {
+            // 年份视图（以 12 年为一个跨度）
+            const startYear = year - (year % 12);
+            titleText.textContent = `${startYear} - ${startYear + 11} 年`;
+            document.getElementById('ds-days-view').style.display = 'none';
+            pickerGrid.classList.add('show');
+            // 年份视图隐藏左右箭头，直接点选更快
+            document.getElementById('ds-prev').style.display = 'none';
+            document.getElementById('ds-next').style.display = 'none';
+            renderYears(startYear);
+        }
+    }
 
+    function renderDays(year, month) {
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
         let html = '';
-        // 填充前面的空白
-        for(let i = 0; i < firstDay; i++) {
-            html += `<div class="ds-day empty"></div>`;
-        }
-        // 填充天数
+        for(let i = 0; i < firstDay; i++) html += `<div class="ds-day empty"></div>`;
         for(let i = 1; i <= daysInMonth; i++) {
             const isSelected = selectedDate && 
                                selectedDate.getFullYear() === year && 
                                selectedDate.getMonth() === month && 
                                selectedDate.getDate() === i;
-            
             html += `<div class="ds-day ${isSelected ? 'selected' : ''}" data-day="${i}">${i}</div>`;
         }
         daysGrid.innerHTML = html;
 
-        // 绑定日期点击
         daysGrid.querySelectorAll('.ds-day:not(.empty)').forEach(el => {
             el.onclick = function() {
-                const day = parseInt(this.getAttribute('data-day'));
-                selectedDate = new Date(year, month, day);
-                render(); // 重新渲染以更新高亮
+                selectedDate = new Date(year, month, parseInt(this.getAttribute('data-day')));
+                currentDate = new Date(selectedDate); // 同步
+                render();
+            };
+        });
+    }
+
+    function renderMonths(year) {
+        let html = '';
+        const selectedMonth = selectedDate && selectedDate.getFullYear() === year ? selectedDate.getMonth() : -1;
+        
+        for(let i = 0; i < 12; i++) {
+            const isSel = i === selectedMonth;
+            html += `<div class="ds-picker-item ${isSel ? 'selected' : ''}" data-month="${i}">${i + 1} 月</div>`;
+        }
+        pickerGrid.innerHTML = html;
+
+        pickerGrid.querySelectorAll('.ds-picker-item').forEach(el => {
+            el.onclick = function() {
+                currentDate.setFullYear(year);
+                currentDate.setMonth(parseInt(this.getAttribute('data-month')));
+                currentView = 'days'; // 选完月自动切回日期
+                render();
+            };
+        });
+    }
+
+    function renderYears(startYear) {
+        let html = '';
+        const selectedYear = selectedDate ? selectedDate.getFullYear() : -1;
+
+        for(let i = 0; i < 12; i++) {
+            const y = startYear + i;
+            const isSel = y === selectedYear;
+            html += `<div class="ds-picker-item ${isSel ? 'selected' : ''}" data-year="${y}">${y}</div>`;
+        }
+        pickerGrid.innerHTML = html;
+
+        pickerGrid.querySelectorAll('.ds-picker-item').forEach(el => {
+            el.onclick = function() {
+                currentDate.setFullYear(parseInt(this.getAttribute('data-year')));
+                currentView = 'months'; // 选完年自动切回月份
+                render();
             };
         });
     }
@@ -95,6 +198,7 @@ const DaySelect = (function() {
     function open(initialDateStr, callback) {
         init();
         onSelectCallback = callback;
+        currentView = 'days';
         
         if(initialDateStr) {
             selectedDate = new Date(initialDateStr);
@@ -107,16 +211,13 @@ const DaySelect = (function() {
         render();
         
         overlay.style.display = 'flex';
-        // 强制重绘以触发动画
         void overlay.offsetWidth;
         overlay.classList.add('show');
     }
 
     function close() {
         overlay.classList.remove('show');
-        setTimeout(() => {
-            overlay.style.display = 'none';
-        }, 200); // 等待动画结束
+        setTimeout(() => { overlay.style.display = 'none'; }, 200);
     }
 
     return { open };

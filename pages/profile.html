@@ -206,7 +206,7 @@
                     document.getElementById('displayQQ').textContent = u.qq_number || "未绑定";
                     document.getElementById('displayLocation').textContent = u.location || "未填写";
                     document.getElementById('displayBirthday').textContent = u.birthday || "未填写";
-                    document.getElementById('displayGender').textContent = u.gender || "未填写";
+                    document.getElementById('displayGender').textContent = u.gender ? u.gender : "保密";
 
                     if (u.avatar_url) {
                         document.getElementById('avatarBox').innerHTML = `<img src="${u.avatar_url}" onerror="this.parentElement.innerHTML='👤'">`;
