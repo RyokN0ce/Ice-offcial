@@ -89,7 +89,12 @@
                 }
                 contentFrame.src = data.url;
             }
-
+            // 接收来自内层 iframe 的登录状态更新，转发给顶栏
+            if (data.type === 'updateAuth') {
+                try {
+                    navFrame.contentWindow.postMessage({ type: 'updateAuth' }, '*');
+                } catch (e) {}
+            }
             // 处理菜单展开和设置面板
             if (data.type === 'settingsToggle') {
                 // 如果是展开，撑开到整个屏幕高度

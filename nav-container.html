@@ -28,23 +28,21 @@
             <li id="navSupport"><a href="#" data-nav="pages/supportmain.html">支持</a></li>
             <li id="navAbout"><a href="#" data-nav="aboutus.html">关于</a></li>
             
-            <!-- 手机端专属：把登录/注册塞进折叠菜单 -->
+            <!-- 手机端专属：登录/注册/退出 -->
             <li class="mobile-only-auth">
                 <a href="#" id="mobileLoginBtn">登录</a>
             </li>
             <li class="mobile-only-auth">
                 <a href="#" id="mobileRegisterBtn">注册</a>
             </li>
-            <!-- 手机端专属：退出登录按钮 (默认隐藏，登录后显示) -->
             <li class="mobile-only-auth" id="mobileLogoutLi" style="display: none;">
                 <a href="#" id="mobileLogoutBtn" style="color: #ff453a;">退出登录</a>
             </li>
         </ul>
     </nav>
 
-    <!-- 右侧按钮组 -->
     <div class="nav-right-group">
-        <!-- 桌面端的登录/用户菜单 (加上 desktop-only-auth 以保证手机端隐藏) -->
+        <!-- 桌面端登录/用户菜单 -->
         <div class="user-menu-container desktop-only-auth">
             <a href="#" class="nav-btn btn-login" id="navLoginBtn">登录</a>
             <div class="user-dropdown" id="userDropdown">
@@ -55,7 +53,7 @@
         </div>
         <a href="#" class="nav-btn btn-register desktop-only-auth" id="navRegisterBtn">注册</a>
         
-        <!-- 设置按钮 (全端显示) -->
+        <!-- 设置按钮 -->
         <div class="settings-btn" id="settingsBtn" title="设置">⚙️</div>
     </div>
 
@@ -169,11 +167,14 @@
             });
         });
 
+        // 统一监听消息
         window.addEventListener('message', function(event) {
             if (event.data && (event.data.type === 'pageLoaded' || event.data.type === 'setActive')) {
-                // 1. 更新中央标题和高亮
                 updateNavUI();
-                // 2. 顺便查一下登录状态并更新按钮 (解决登录后不刷新的 Bug)
+                updateAuthUI();
+            }
+            // 如果收到认证更新消息，立即刷新 UI
+            if (event.data && event.data.type === 'updateAuth') {
                 updateAuthUI();
             }
         });
@@ -192,11 +193,13 @@
             try {
                 const contentFrame = window.parent.document.getElementById('contentFrame');
                 let path = contentFrame.contentWindow.location.pathname;
-                let filename = path.substring(path.lastIndexOf('/') + 1);
-                if (filename) targetPage = filename;
+                // 获取完整的相对路径，比如 pages/sign-in.html 或 aboutus.html
+                let relativePath = path.replace(/^\/|\/$/g, ''); 
+                if (relativePath) targetPage = relativePath;
             } catch (err) {}
             try {
-                window.parent.postMessage({ type: 'navigate', url: 'tools/login.html?from=' + targetPage }, '*');
+                // 把完整的相对路径传过去
+                window.parent.postMessage({ type: 'navigate', url: 'tools/login.html?from=' + encodeURIComponent(targetPage) }, '*');
             } catch (err) {}
         }
 

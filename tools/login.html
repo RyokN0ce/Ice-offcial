@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 · 冰冰冰官网</title>
-    <script src="checkuser.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -19,6 +18,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg); color: var(--text);
             display: flex; align-items: center; justify-content: center; height: 100vh;
+            transition: background-color 0.35s ease;
         }
         .login-box {
             background: var(--card-bg); padding: 40px; border-radius: 18px;
@@ -30,15 +30,17 @@
             width: 100%; padding: 12px 16px; margin-bottom: 16px;
             border-radius: 10px; border: 1px solid var(--text-secondary);
             background: var(--bg); color: var(--text); font-size: 16px;
-            outline: none;
+            outline: none; transition: border 0.2s;
         }
         input:focus { border-color: var(--link); }
         button {
             width: 100%; padding: 12px; border-radius: 10px; border: none;
             background: var(--button-bg); color: #fff; font-size: 16px;
             font-weight: 600; cursor: pointer; margin-bottom: 16px;
+            transition: opacity 0.2s;
         }
         button:hover { opacity: 0.9; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
         .error { color: #ff453a; font-size: 14px; margin-bottom: 16px; display: none; }
         .back-link { color: var(--link); text-decoration: none; font-size: 14px; }
     </style>
@@ -47,7 +49,7 @@
 
     <div class="login-box">
         <h1>Ice07终端</h1>
-        <p>请输入你的冰冰凭证</p>
+        <p>请输入你的冰鸣凭证</p>
         
         <div class="error" id="errorMsg">身份验证失败，请检查用户名或密码</div>
 
@@ -64,9 +66,20 @@
         let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
         document.documentElement.setAttribute('data-theme', theme);
 
-        // 获取返回目标（默认 main.html）
+        // ⚠️ 替换成你真实的 Worker 链接
+        const API_BASE = 'https://ice-apis.ryokn0ce.workers.dev';
+
+        // 获取返回目标（默认 main.html），并处理相对路径
         const urlParams = new URLSearchParams(window.location.search);
-        const targetPage = urlParams.get('from') || 'main.html';
+        const fromParam = urlParams.get('from');
+        let targetPage = 'main.html';
+        
+        if (fromParam) {
+            targetPage = decodeURIComponent(fromParam);
+            // 如果是从子目录（如 pages/sign-in.html）来的，路径前面不带前缀，直接跳就行
+        }
+
+        let isForceLogin = false;
 
         document.getElementById('loginBtn').addEventListener('click', async function() {
             const user = document.getElementById('username').value.trim();
@@ -79,59 +92,64 @@
                 return;
             }
 
-            try {
-                // 因为 login.html 在 tools 目录下，XML 在 res 目录下
-                const res = await fetch('../res/userlist.xml');
-                const text = await res.text();
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(text, "text/xml");
-                const users = xmlDoc.getElementsByTagName("user");
-                
-                let isValid = false;
-                for (let i = 0; i < users.length; i++) {
-                    const name = users[i].getElementsByTagName("name")[0]?.textContent;
-                    const pwd = users[i].getElementsByTagName("password")[0]?.textContent;
-                    const status = users[i].getElementsByTagName("status")[0]?.textContent;
-                    
-                    if (name === user && pwd === pass) {
-                        if (status === 'banned') {
-                            errorMsg.textContent = "该账户已被冻结";
-                            errorMsg.style.display = 'block';
-                            return;
-                        }
-                        isValid = true;
-                        break;
-                    }
-                }
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = "验证中...";
+            errorMsg.style.display = 'none';
 
-                if (isValid) {
-                    // 存入状态
+            try {
+                const endpoint = isForceLogin ? '/api/force-login' : '/api/login';
+                
+                const res = await fetch(API_BASE + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+                
+                const data = await res.json();
+
+                if (res.ok) {
+                    // 验证成功，保存 Token
                     localStorage.setItem('ice_user', user);
-                    document.cookie = `ice_user=${user}; max-age=86400; path=/`;
+                    localStorage.setItem('ice_token', data.token); 
                     
-                    // 通知顶栏刷新
+                    // 通知导航栏刷新（通过外层框架，避免跨域报错）
                     try {
-                        window.parent.document.getElementById('navFrame').contentWindow.postMessage({ type: 'updateAuth' }, '*');
+                        window.parent.postMessage({ type: 'updateAuth' }, '*');
                     } catch (e) {}
 
-                    // 登录成功，跳回来源页面
+                    // 跳转
                     try {
                         window.parent.postMessage({ type: 'navigate', url: targetPage }, '*');
                     } catch (e) {
+                        // 如果本地直接打开，需回退两级目录（tools 下）
                         window.location.href = '../' + targetPage;
                     }
+                } else if (res.status === 409 && !isForceLogin) {
+                    // 互踢检测
+                    errorMsg.style.color = '#ff9f0a'; 
+                    errorMsg.innerHTML = data.message + '<br><span style="font-size:12px;cursor:pointer;text-decoration:underline;margin-top:8px;display:inline-block;" id="forceBtn">点此强制下线该设备并重新登录</span>';
+                    errorMsg.style.display = 'block';
+                    
+                    document.getElementById('forceBtn').onclick = function() {
+                        isForceLogin = true;
+                        btn.click(); 
+                    };
                 } else {
-                    errorMsg.textContent = "身份验证失败，请检查用户名或密码";
+                    errorMsg.style.color = '#ff453a';
+                    errorMsg.textContent = data.error || "认证失败";
                     errorMsg.style.display = 'block';
                 }
             } catch (err) {
-                console.error(err);
-                errorMsg.textContent = "无法连接至 Ice07 数据库 (XML 读取失败)";
+                errorMsg.style.color = '#ff453a';
+                errorMsg.textContent = "网络连接失败 (Worker 离线)";
                 errorMsg.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "验证并进入";
             }
         });
 
-        // 取消返回
         document.getElementById('cancelBtn').addEventListener('click', function(e) {
             e.preventDefault();
             try {
