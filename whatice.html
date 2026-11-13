@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>什么是冰冰冰 · 冰冰冰官网</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #ffffff;
+            --text: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --text-tertiary: #86868b;
+            --card-bg: #f5f5f7;
+            --divider: #d2d2d7;
+            --link: #0066cc;
+            --banner-bg: #f5f5f7;
+            --placeholder-bg: linear-gradient(145deg, #e8e8ed, #d2d2d7);
+            --footer-bg: #f5f5f7;
+            --button-bg: #0071e3;
+            --button-hover: #0077ed;
+        }
+
+        [data-theme="dark"] {
+            --bg: #000000;
+            --text: #f5f5f7;
+            --text-secondary: #a1a1a6;
+            --text-tertiary: #86868b;
+            --card-bg: #1c1c1e;
+            --divider: #38383a;
+            --link: #2997ff;
+            --banner-bg: #1c1c1e;
+            --placeholder-bg: linear-gradient(145deg, #2c2c2e, #1c1c1e);
+            --footer-bg: #1c1c1e;
+            --button-bg: #0071e3;
+            --button-hover: #0077ed;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.35s ease, color 0.35s ease;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 22px;
+        }
+
+        .page-hero {
+            text-align: center;
+            padding: 80px 0 40px;
+        }
+
+        .page-hero h1 {
+            font-size: 56px;
+            font-weight: 600;
+            letter-spacing: -0.005em;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .page-hero .subhead {
+            font-size: 26px;
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            letter-spacing: 0.007em;
+        }
+
+        .article-body {
+            margin: 20px 0 80px;
+        }
+
+        .article-body p {
+            font-size: 19px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        .article-body p .highlight {
+            color: var(--link);
+            font-weight: 500;
+        }
+
+        .article-body h2 {
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin: 56px 0 20px;
+            color: var(--text);
+        }
+
+        .article-body blockquote {
+            border-left: 3px solid var(--divider);
+            padding-left: 20px;
+            margin: 32px 0;
+            font-size: 21px;
+            color: var(--text-secondary);
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: var(--divider);
+            margin: 48px 0;
+            transition: background-color 0.35s ease;
+        }
+
+        .footer {
+            background-color: var(--footer-bg);
+            padding: 40px 22px 30px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            transition: background-color 0.35s ease;
+        }
+
+        .footer-content {
+            max-width: 980px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px 40px;
+        }
+
+        .footer-links a {
+            color: var(--text);
+            text-decoration: none;
+            opacity: 0.8;
+            cursor: pointer;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .copyright {
+            opacity: 0.8;
+        }
+
+        .ice-status {
+            display: block;
+            margin-top: 6px;
+            opacity: 0.7;
+            font-size: 11px;
+        }
+
+        @media (max-width: 768px) {
+            .page-hero h1 { font-size: 40px; }
+            .page-hero .subhead { font-size: 21px; }
+            .article-body p { font-size: 17px; }
+            .article-body h2 { font-size: 26px; }
+            .article-body blockquote { font-size: 19px; }
+        }
+
+        @media (max-width: 480px) {
+            .page-hero h1 { font-size: 32px; }
+            .page-hero .subhead { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="container">
+        <section class="page-hero">
+            <h1>什么是冰冰冰</h1>
+            <p class="subhead">一段音效，一座城市，一种能源。</p>
+        </section>
+
+        <div class="article-body">
+            <p>「冰冰冰」最初是一段剪辑音效，被空耳成三个清脆的冰裂声。但在这个世界观里，它是 <span class="highlight">φ 能源运转时发出的可听化脉冲</span>——居民称之为「冰鸣」。</p>
+
+            <p>当城市空间稳定时，φ-Core 会发出三连脉冲：第一声低沉，确认空间锚定；第二声清亮，确认边界完整；第三声高频，确认电磁网络同步。三声齐全，意味着 I 市今天安全。</p>
+
+            <blockquote>“听懂冰鸣的人，才知道城市今天安不安全。”</blockquote>
+
+            <h2>冰鸣体系</h2>
+
+            <p><strong>🧊 单声</strong> —— 待机模式，深夜或低功耗时只保留一声低频脉冲。</p>
+            <p><strong>🧊🧊 双声</strong> —— 边界切换中，有人申请进出，筛选门禁正在工作。</p>
+            <p><strong>🧊🧊🧊 三声</strong> —— 全系统正常，城市空间稳定、筛选正常、电网健康。</p>
+            <p><strong>🧊🧊🧊…冰（拖长）</strong> —— 能源过载警报，空间出现渗透风险。</p>
+            <p><strong>冰——（长音断裂）</strong> —— φ 归零，空间失稳，城市最危险的状态。</p>
+            <p><strong>（静默）</strong> —— 比断裂更可怕：城市断电，内外界限消失。</p>
+
+            <div class="divider"></div>
+
+            <h2>φ 能源</h2>
+
+            <p>φ（读作 Phase Energy / 相位能）是支撑整座 I 市的唯一能源。它在物理学中代表磁通量与相位，对应三重职能：<span class="highlight">空间锚定、进出筛选、电磁网络</span>。</p>
+
+            <p>没有 φ，I 市就无法维持独有空间；没有 φ-Gate，内外就没有穿透限制；没有 φ-Net，整座城市的电磁骨架就会熄灭。</p>
+
+            <blockquote>“φ 不熄，空间永固。”</blockquote>
+
+            <p>这套体系并非设定集里的死文字——它通过每一段「冰冰冰」音效、每一个页面、每一次主题切换，被真实地播放出来。你听到的，就是 I 市的心跳。</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#" data-nav="pages/privacy.html">隐私政策</a>
+                <a href="#" data-nav="pages/uses-terms.html">使用条款</a>
+                <a href="#" data-nav="pages/contact.html">联系我们</a>
+                <a href="#" data-nav="#">常见问题</a>
+            </div>
+            <div class="copyright">
+                © 2026-Today GitHub · @RyokN0ce以及Deepseek
+                <span class="ice-status">冰鸣状态：🧊🧊🧊 正常 · φ-Core 稳定</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 通知父框架：页面已加载（用于导航高亮）
+        try {
+            window.parent.postMessage({ type: 'pageLoaded', path: window.location.pathname }, '*');
+        } catch (e) {}
+
+        // 初始化主题
+        (function() {
+            const saved = localStorage.getItem('ice-theme') || 'auto';
+            let theme = saved;
+            if (saved === 'auto') {
+                theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+                // 监听所有带有 data-nav 的链接（包括底部导航）
+        document.querySelectorAll('[data-nav]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.dataset.nav;
+                if (url && url !== '#') {
+                    try {
+                        window.parent.postMessage({ type: 'navigate', url: url }, '*');
+                    } catch (err) {
+                        window.location.href = '../' + url; // 本地直接打开的兜底
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

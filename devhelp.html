@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开发与配置文档 · 冰冰冰官网</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #ffffff;
+            --text: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --card-bg: #f5f5f7;
+            --border: #d2d2d7;
+            --link: #0066cc;
+            --code-bg: #282c34;
+            --code-text: #abb2bf;
+            --table-header: #f0f0f2;
+        }
+        [data-theme="dark"] {
+            --bg: #000000;
+            --text: #f5f5f7;
+            --text-secondary: #a1a1a6;
+            --card-bg: #1c1c1e;
+            --border: #38383a;
+            --link: #2997ff;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+            --table-header: #2c2c2e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            transition: background-color 0.35s ease, color 0.35s ease;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* 页面标题区 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 8px;
+        }
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        /* 模拟聊天记录的卡片 */
+        .chat-bubble {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        .chat-bubble h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .chat-bubble h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 20px 0 12px;
+        }
+
+        .chat-bubble p {
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+
+        .chat-bubble ul, .chat-bubble ol {
+            margin-left: 20px;
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+
+        .chat-bubble li {
+            margin-bottom: 8px;
+        }
+
+        /* 代码块样式 */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 16px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            background-color: var(--border);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: inherit;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background-color: var(--table-header);
+            font-weight: 600;
+        }
+
+        /* 提示框 */
+        .alert {
+            background-color: rgba(255, 159, 10, 0.1);
+            border-left: 4px solid #ff9f0a;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .alert-info {
+            background-color: rgba(0, 102, 204, 0.1);
+            border-left-color: var(--link);
+        }
+
+        /* 返回按钮 */
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 40px;
+            color: var(--link);
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .back-home:hover { text-decoration: underline; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="page-header">
+            <h1>🧊 冰冰冰官网 · 开发文档</h1>
+            <p>包含配置结构、通信机制与开发规范</p>
+        </header>
+
+        <!-- 1. 目录结构 -->
+        <div class="chat-bubble">
+            <h2>📂 一、 目录结构概览</h2>
+            <pre><code>Ice-offcial/ (根目录)
+├── index.html               # 外框框架 (原 fe-main.html，负责套 iframe)
+├── main.html                # 首页内容 (原 index.html，位于 contentFrame 内)
+├── aboutus.html             # 关于我们 (内容页)
+├── whatice.html             # 什么是冰冰冰 (内容页)
+├── joinus.html              # 联系/维护申请聚合页 (内容页)
+├── nav-container.html       # 公共导航栏 (位于 navFrame 内)
+├── nav-container.css        # 导航栏与菜单样式
+├── pages/
+│   └── supportmain.html     # 支持与资源页 (内容页)
+├── tools/
+│   ├── login.html           # 登录页面
+│   ├── error.html           # 维护模式/报错提示页
+│   ├── devhelp.html         # 开发文档 (本页面)
+│   └── checkuser.js         # 用户状态校验与 XML 解析工具
+└── res/
+    ├── state.xml            # [状态库] 全站维护状态控制
+    ├── userlist.xml         # [数据库] 用户白名单
+    ├── mainaudio/           # [媒体库] BGM 音频目录
+    │   ├── playlist.json    # BGM 播放列表
+    │   └── *.mp3
+    └── otherphoto/          # 图标与各类素材</code></pre>
+        </div>
+
+        <!-- 2. 数据文件结构 -->
+        <div class="chat-bubble">
+            <h2>🗄️ 二、 核心数据文件结构</h2>
+            
+            <h3>1. 维护状态库：<code>res/state.xml</code></h3>
+            <p><strong>作用</strong>：用于控制全站是否进入“维护模式”。<code>index.html</code> (外框) 启动时会读取此文件。</p>
+            <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;status&gt;
+    &lt;!-- 
+      可选值：
+      normal       = 正常访问，加载 main.html
+      maintenance  = 维护模式，contentFrame 强制加载 tools/error.html
+    --&gt;
+    &lt;current&gt;normal&lt;/current&gt;
+&lt;/status&gt;</code></pre>
+
+            <h3>2. 用户白名单库：<code>res/userlist.xml</code></h3>
+            <p><strong>作用</strong>：作为账号登录的唯一凭证数据源，<code>login.html</code> 会拉取此文件比对账号密码。</p>
+            <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;users&gt;
+    &lt;user&gt;
+        &lt;name&gt;RyokN0ce&lt;/name&gt;
+        &lt;password&gt;ice2026&lt;/password&gt;
+        &lt;status&gt;active&lt;/status&gt; &lt;!-- active 正常, banned 封禁 --&gt;
+    &lt;/user&gt;
+&lt;/users&gt;</code></pre>
+
+            <h3>3. 背景音乐列表：<code>res/mainaudio/playlist.json</code></h3>
+            <p><strong>作用</strong>：供 <code>bgmswitcher.js</code> 读取，自动生成设置面板中的音乐下拉菜单。</p>
+            <pre><code>[
+  "bingbingbing.mp3",
+  "ice-ambient.mp3"
+]</code></pre>
+            <div class="alert">注意：将 .mp3 文件放入同目录后，在此 JSON 中添加文件名。**最后一行不能有逗号**。</div>
+        </div>
+
+        <!-- 3. 全局通信机制 -->
+        <div class="chat-bubble">
+            <h2>🔄 三、 全局通信机制 (postMessage)</h2>
+            <p>网站采用了外层容器 (<code>index.html</code>) + 内层内容 (<code>main.html</code> 等) + 导航栏 (<code>nav-container.html</code>) 的 iframe 架构，所有跨页面行为均通过 <code>window.postMessage</code> 传递。</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>消息类型 (type)</th>
+                        <th>发送方</th>
+                        <th>接收方</th>
+                        <th>载荷 (data)</th>
+                        <th>作用说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>navigate</code></td>
+                        <td>导航/内容页</td>
+                        <td>外层框架</td>
+                        <td><code>url: 'xxx.html'</code></td>
+                        <td>命令 contentFrame 切换页面</td>
+                    </tr>
+                    <tr>
+                        <td><code>pageLoaded</code></td>
+                        <td>内容页</td>
+                        <td>导航栏</td>
+                        <td><code>path: '/xxx'</code></td>
+                        <td>通知导航栏高亮对应菜单</td>
+                    </tr>
+                    <tr>
+                        <td><code>setActive</code></td>
+                        <td>外层框架</td>
+                        <td>导航栏</td>
+                        <td><code>page: 'xxx.html'</code></td>
+                        <td>显式设置导航栏高亮状态</td>
+                    </tr>
+                    <tr>
+                        <td><code>settingsToggle</code></td>
+                        <td>导航栏</td>
+                        <td>外层框架</td>
+                        <td><code>open: true/false</code></td>
+                        <td>通知框架撑开/收起顶部 iframe</td>
+                    </tr>
+                    <tr>
+                        <td><code>updateAuth</code></td>
+                        <td>登录页</td>
+                        <td>导航栏</td>
+                        <td>无</td>
+                        <td>通知导航栏刷新右上角状态</td>
+                    </tr>
+                    <tr>
+                        <td><code>themeChange</code></td>
+                        <td>导航栏</td>
+                        <td>外层框架</td>
+                        <td><code>theme: 'light/dark'</code></td>
+                        <td>同步亮暗色主题给内容 iframe</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 4. 开发规范 -->
+        <div class="chat-bubble">
+            <h2>🎨 四、 新增页面的标准流程</h2>
+            <p>当你需要新加一个类似 <code>pages/supportmain.html</code> 的页面时，请遵循以下规范：</p>
+            <ol>
+                <li><strong>复制模板</strong>：复制一个现有页面（如 <code>aboutus.html</code>），删掉内部内容，保留 <code>&lt;head&gt;</code> 里的 CSS 变量。</li>
+                <li><strong>引入通信</strong>：确保页面底部有 <code>window.parent.postMessage({ type: 'pageLoaded', path: window.location.pathname }, '*');</code>，否则导航栏不会高亮。</li>
+                <li><strong>返回逻辑</strong>：所有返回主页的按钮，必须写成 <code>window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*');</code>（不能直接用 href 跳转，否则会破坏 iframe 框架）。</li>
+                <li><strong>主题同步</strong>：确保底部有一段读取 <code>localStorage.getItem('ice-theme')</code> 的脚本，以保持亮暗色统一。</li>
+            </ol>
+
+            <div class="alert alert-info">
+                💡 <strong>本地调试须知</strong>：因为包含 fetch 请求 XML/JSON，不能直接双击 HTML 打开，必须使用 Live Server 或本地服务器环境。
+            </div>
+        </div>
+
+        <a href="#" class="back-home" id="backHomeBtn">← 返回官网主页</a>
+    </div>
+
+    <script>
+        // 初始化主题
+        const saved = localStorage.getItem('ice-theme') || 'auto';
+        let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // 返回首页 (tools 目录下，回退一级)
+        document.getElementById('backHomeBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            try {
+                window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*');
+            } catch (err) {
+                window.location.href = '../main.html';
+            }
+        });
+
+        // 通知父框架页面已加载
+        try { window.parent.postMessage({ type: 'pageLoaded', path: window.location.pathname }, '*'); } catch (e) {}
+    </script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支持与资源 · 冰冰冰官网</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #ffffff;
+            --text: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --card-bg: #f5f5f7;
+            --border: #d2d2d7;
+            --link: #0066cc;
+            --icon-bg: #e8e8ed;
+        }
+        [data-theme="dark"] {
+            --bg: #000000;
+            --text: #f5f5f7;
+            --text-secondary: #a1a1a6;
+            --card-bg: #1c1c1e;
+            --border: #38383a;
+            --link: #2997ff;
+            --icon-bg: #2c2c2e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg); color: var(--text);
+            line-height: 1.5; transition: background-color 0.35s ease;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; padding: 60px 20px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .page-header h1 {
+            font-size: 44px;
+            font-weight: 600;
+            letter-spacing: -0.015em;
+            margin-bottom: 12px;
+        }
+        .page-header p {
+            font-size: 19px;
+            color: var(--text-secondary);
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 960px;
+        }
+
+        .category-card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            text-decoration: none !important;
+            color: var(--text) !important;
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+            border-color: var(--text-secondary);
+        }
+
+        [data-theme="dark"] .category-card:hover {
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+        }
+
+        .canvas-wrapper {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background-color: var(--icon-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            transition: background-color 0.35s ease;
+        }
+
+        .category-card h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .category-card p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .arrow-link {
+            margin-top: 20px;
+            font-size: 15px;
+            color: var(--link);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 返回按钮 */
+        .back-home {
+            margin-top: 60px;
+            color: var(--link);
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .back-home:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <header class="page-header">
+        <h1>支持与资源页</h1>
+        <p>支持与下载文件。</p>
+    </header>
+
+    <main class="category-grid">
+        <!-- 1. 社区作品 -->
+        <a href="#" class="category-card" onclick="alert('社区作品模块暂未开放')">
+            <div class="canvas-wrapper">
+                <canvas id="icon-media" width="64" height="64"></canvas>
+            </div>
+            <h2>冰community精选</h2>
+            <p>从冰冰冰社区精选的前十条作品（周更新）。</p>
+            <div class="arrow-link">进入页面 &gt;</div>
+        </a>
+
+        <!-- 2. 软件 -->
+        <a href="#" class="category-card" onclick="alert('软件模块暂未开放')">
+            <div class="canvas-wrapper">
+                <canvas id="icon-software" width="64" height="64"></canvas>
+            </div>
+            <h2>冰software</h2>
+            <p>下载“这你冰我”客户端(基于flutter框架开发)、冰鸣状态监视器以及各类作者乐于分享的小工具。</p>
+            <div class="arrow-link">获取工具 &gt;</div>
+        </a>
+
+        <!-- 3. 文字性档案 -->
+        <a href="#" class="category-card" onclick="alert('文字性档案模块暂未开放')">
+            <div class="canvas-wrapper">
+                <canvas id="icon-novel" width="64" height="64"></canvas>
+            </div>
+            <h2>冰text</h2>
+            <p>冰冰冰官方的所有文字性档案。</p>
+            <div class="arrow-link">进入页面 &gt;</div>
+        </a>
+    </main>
+
+    <a href="#" class="back-home" id="backHomeBtn">返回官网主页</a>
+
+    <script>
+        // ===== 初始化主题 =====
+        const saved = localStorage.getItem('ice-theme') || 'auto';
+        let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // ===== Canvas 扁平风图标绘制 =====
+        function drawIcons() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            // 根据亮暗模式选择图标颜色
+            const primaryColor = isDark ? '#f5f5f7' : '#1d1d1f';
+            const accentColor = isDark ? '#2997ff' : '#0066cc'; // 蓝色点缀
+
+            // 1. 音视频图标 (播放按钮 + 波形)
+            const ctxMedia = document.getElementById('icon-media').getContext('2d');
+            ctxMedia.clearRect(0, 0, 64, 64);
+            
+            // 圆角矩形背景
+            ctxMedia.fillStyle = accentColor;
+            ctxMedia.beginPath();
+            ctxMedia.roundRect(12, 16, 40, 32, 6);
+            ctxMedia.fill();
+            
+            // 播放三角形
+            ctxMedia.fillStyle = '#ffffff';
+            ctxMedia.beginPath();
+            ctxMedia.moveTo(28, 24);
+            ctxMedia.lineTo(28, 40);
+            ctxMedia.lineTo(42, 32);
+            ctxMedia.closePath();
+            ctxMedia.fill();
+
+            // 2. 软件图标 (立体方块 / 齿轮简写)
+            const ctxSoft = document.getElementById('icon-software').getContext('2d');
+            ctxSoft.clearRect(0, 0, 64, 64);
+
+            ctxSoft.fillStyle = accentColor;
+            // 左面
+            ctxSoft.beginPath();
+            ctxSoft.moveTo(32, 16);
+            ctxSoft.lineTo(14, 26);
+            ctxSoft.lineTo(14, 42);
+            ctxSoft.lineTo(32, 52);
+            ctxSoft.closePath();
+            ctxSoft.fill();
+
+            ctxSoft.fillStyle = primaryColor;
+            // 右面
+            ctxSoft.beginPath();
+            ctxSoft.moveTo(32, 16);
+            ctxSoft.lineTo(50, 26);
+            ctxSoft.lineTo(50, 42);
+            ctxSoft.lineTo(32, 52);
+            ctxSoft.closePath();
+            ctxSoft.fill();
+
+            // 中间的缝
+            ctxSoft.strokeStyle = isDark ? '#1c1c1e' : '#ffffff';
+            ctxSoft.lineWidth = 2;
+            ctxSoft.beginPath();
+            ctxSoft.moveTo(32, 16);
+            ctxSoft.lineTo(32, 52);
+            ctxSoft.stroke();
+
+            // 3. 小说图标 (书本)
+            const ctxNovel = document.getElementById('icon-novel').getContext('2d');
+            ctxNovel.clearRect(0, 0, 64, 64);
+
+            ctxNovel.fillStyle = accentColor;
+            // 左半边书页
+            ctxNovel.beginPath();
+            ctxNovel.moveTo(32, 20);
+            ctxNovel.quadraticCurveTo(18, 16, 12, 22);
+            ctxNovel.lineTo(12, 44);
+            ctxNovel.quadraticCurveTo(18, 38, 32, 42);
+            ctxNovel.closePath();
+            ctxNovel.fill();
+
+            ctxNovel.fillStyle = primaryColor;
+            // 右半边书页
+            ctxNovel.beginPath();
+            ctxNovel.moveTo(32, 20);
+            ctxNovel.quadraticCurveTo(46, 16, 52, 22);
+            ctxNovel.lineTo(52, 44);
+            ctxNovel.quadraticCurveTo(46, 38, 32, 42);
+            ctxNovel.closePath();
+            ctxNovel.fill();
+
+            // 书脊线条
+            ctxNovel.strokeStyle = isDark ? '#1c1c1e' : '#ffffff';
+            ctxNovel.lineWidth = 2;
+            ctxNovel.beginPath();
+            ctxNovel.moveTo(32, 20);
+            ctxNovel.lineTo(32, 42);
+            ctxNovel.stroke();
+        }
+
+        // 兼容性封装（圆角矩形）
+        CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+            if (w < 2 * r) r = w / 2;
+            if (h < 2 * r) r = h / 2;
+            this.beginPath();
+            this.moveTo(x + r, y);
+            this.arcTo(x + w, y, x + w, y + h, r);
+            this.arcTo(x + w, y + h, x, y + h, r);
+            this.arcTo(x, y + h, x, y, r);
+            this.arcTo(x, y, x + w, y, r);
+            this.closePath();
+            return this;
+        };
+
+        // 初始绘制
+        drawIcons();
+
+        // 监听主题切换，重绘图标
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (localStorage.getItem('ice-theme') === 'auto' || !localStorage.getItem('ice-theme')) {
+                setTimeout(drawIcons, 100);
+            }
+        });
+        // 如果使用了外部切换按钮（通过观察 data-theme 变化）
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'data-theme') {
+                    drawIcons();
+                }
+            });
+        });
+        observer.observe(document.documentElement, { attributes: true });
+
+        // ===== 返回官网主页 =====
+        document.getElementById('backHomeBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            try {
+                window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*');
+            } catch (err) {
+                // GitCode Pages 相对路径兼容
+                window.location.href = '../main.html';
+            }
+        });
+
+        // 通知父框架页面已加载
+        try { window.parent.postMessage({ type: 'pageLoaded', path: window.location.pathname }, '*'); } catch (e) {}
+    </script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冰冰冰官网</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        #navFrame {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 48px;
+            border: none;
+            z-index: 10000;
+            pointer-events: auto;
+            transition: height 0.22s ease;
+        }
+        #contentFrame {
+            position: fixed;
+            top: 48px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 48px);
+            border: none;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <iframe id="navFrame" src="nav-container.html" title="导航栏"></iframe>
+    
+    <!-- 内容 iframe，src 先留空，靠 JS 动态决定 -->
+    <iframe id="contentFrame" src="" title="页面内容"></iframe>
+
+    <script>
+        // ===== 全局维护状态变量 =====
+        let isMaintenanceMode = false;
+        const contentFrame = document.getElementById('contentFrame');
+
+        // ===== 1. 检查维护状态 =====
+        async function checkMaintenance() {
+            try {
+                const res = await fetch('res/state.xml?t=' + Date.now());
+                if (!res.ok) throw new Error('No status file');
+                
+                const text = await res.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(text, "text/xml");
+                const currentStatus = xmlDoc.getElementsByTagName("current")[0]?.textContent.trim();
+
+                if (currentStatus === 'maintenance') {
+                    isMaintenanceMode = true;
+                    contentFrame.src = 'tools/error.html';
+                } else {
+                    isMaintenanceMode = false;
+                    contentFrame.src = 'main.html'; // 正常加载主页
+                }
+            } catch (err) {
+                console.warn('未找到状态文件，默认进入主页');
+                isMaintenanceMode = false;
+                contentFrame.src = 'main.html';
+            }
+        }
+
+        // 执行检查
+        checkMaintenance();
+
+        // ===== 2. 全局通信拦截器 =====
+        window.addEventListener('message', function(event) {
+            const data = event.data;
+            if (!data) return;
+
+            // ⚠️ 核心拦截：如果是跳转请求，且处于维护模式，直接打回！
+            if (data.type === 'navigate') {
+                if (isMaintenanceMode) {
+                    // 如果当前已经在错误页了，就不重复刷新了，防止无限循环
+                    if (!contentFrame.src.includes('error.html')) {
+                        contentFrame.src = 'tools/error.html';
+                    }
+                    return; // 阻断跳转
+                }
+                // 正常状态，放行跳转
+                contentFrame.src = data.url;
+            }
+
+            // 设置面板开关 → 调整导航 iframe 高度
+            if (data.type === 'settingsToggle') {
+                const navFrame = document.getElementById('navFrame');
+                navFrame.style.height = data.open ? '100vh' : '48px';
+            }
+
+            // 主题同步到内容 iframe
+            if (data.type === 'themeChange') {
+                try {
+                    contentFrame.contentWindow.document.documentElement.setAttribute('data-theme', data.theme);
+                } catch (e) {}
+            }
+        });
+
+        // ===== 3. 内容 iframe 加载完成后，同步当前主题 =====
+        contentFrame.addEventListener('load', function() {
+            try {
+                const savedTheme = localStorage.getItem('ice-theme') || 'auto';
+                let theme = savedTheme;
+                if (savedTheme === 'auto') {
+                    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                this.contentWindow.document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {}
+        });
+    </script>
+</body>
+</html>

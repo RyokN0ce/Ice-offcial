@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users>
+    <!-- 
+      格式：
+      <user>
+          <name>用户名</name>
+          <password>密码（在login.html写死比对或明文验证）</password>
+          <status>active</status> (或 banned)
+      </user>
+    -->
+    <user>
+        <name>ryokn0ce</name>
+        <password>ice2026</password>
+        <status>active</status>
+    </user>
+    <user>
+        <name>deepseek</name>
+        <password>ai123456</password>
+        <status>active</status>
+    </user>
+    <user>
+        <name>wyk20140501</name>
+        <password>ynjxyb203107</password>
+        <status>active</status>
+    </user>
+    <user>
+        <name>eggblue27</name>
+        <password>e6622hab23</password>
+        <status>active</status>
+    </user>
+    <user>
+        <name>shenyykx</name>
+        <password>16yykx06</password>
+        <status>active</status>
+    </user>
+    <user>
+        <name>anzhe0d0x</name>
+        <password>jiachan99</password>
+        <status>active</status>
+    </user>
+    <user>
+        <name>potpc</name>
+        <password>fe343434</password>
+        <status>active</status>
+    </user>
+</users>

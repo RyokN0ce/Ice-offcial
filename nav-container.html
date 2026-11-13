@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导航栏</title>
+    <link rel="stylesheet" href="nav-container.css">
+</head>
+<body>
+
+    <nav class="global-nav">
+        <ul>
+            <li class="logo-placeholder"><a href="#" data-nav="main.html">🧊冰冰冰官网</a></li>
+            <li id="navWhat"><a href="#" data-nav="whatice.html">什么是冰冰冰</a></li>
+            <li><a href="#" data-nav="#">探索冰冰冰档案馆</a></li>
+            <li><a href="#" data-nav="#">冰冰冰社区</a></li>
+            <li id="navSupport"><a href="#" data-nav="pages/supportmain.html">支持</a></li>
+            <li id="navAbout"><a href="#" data-nav="aboutus.html">关于</a></li>
+        </ul>
+    </nav>
+
+    <div class="nav-right-group">
+        <!-- 登录/用户菜单 容器 -->
+        <div class="user-menu-container">
+            <a href="#" class="nav-btn btn-login" id="navLoginBtn">登录</a>
+            
+            <!-- 悬浮下拉菜单 -->
+            <div class="user-dropdown" id="userDropdown">
+                <a href="#" id="menuProfileBtn">个人主页</a>
+                <div class="dropdown-divider"></div>
+                <a href="#" id="menuLogoutBtn">退出登录</a>
+            </div>
+        </div>
+        
+        <a href="#" class="nav-btn btn-register" id="navRegisterBtn">注册</a>
+        <div class="settings-btn" id="settingsBtn" title="设置">⚙️</div>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <h3>设置</h3>
+        <div class="setting-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
+            <label>主题</label>
+            <div class="theme-group" id="theme-switcher">
+                <button data-theme="light">☀️ 亮色</button>
+                <button data-theme="dark">🌙 暗色</button>
+                <button data-theme="auto">🔄 自动</button>
+            </div>
+        </div>
+        <div class="setting-divider"></div>
+        <div class="setting-row">
+            <label for="musicToggle">播放音乐</label>
+            <div class="toggle" id="musicToggle"></div>
+        </div>
+        <div class="setting-row" style="flex-direction: column; align-items: stretch; gap: 6px;">
+            <label for="musicSelect">音乐选择</label>
+            <select class="music-select" id="musicSelect">
+                <option value="">加载中...</option>
+            </select>
+        </div>
+        <div class="setting-divider"></div>
+        <div class="setting-row" style="font-size: 12px; color: var(--text-tertiary);">
+            <span>冰鸣状态</span>
+            <span>🧊🧊🧊 正常</span>
+        </div>
+    </div>
+
+    <audio id="bgMusic" loop preload="none"></audio>
+
+    <script>
+        // ===== 设置面板开关 =====
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsPanel = document.getElementById('settingsPanel');
+
+        settingsBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = settingsPanel.classList.toggle('open');
+            try {
+                window.parent.postMessage({ type: 'settingsToggle', open: isOpen }, '*');
+            } catch (err) {}
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
+                if (settingsPanel.classList.contains('open')) {
+                    settingsPanel.classList.remove('open');
+                    try {
+                        window.parent.postMessage({ type: 'settingsToggle', open: false }, '*');
+                    } catch (err) {}
+                }
+            }
+        });
+
+        // ===== 导航点击 =====
+        document.querySelectorAll('[data-nav]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.dataset.nav;
+                if (url && url !== '#') {
+                    window.parent.postMessage({ type: 'navigate', url: url }, '*');
+                }
+            });
+        });
+
+        // ===== 高亮逻辑 =====
+        function setActive(page) {
+            document.querySelectorAll('.global-nav li').forEach(li => li.classList.remove('nav-active'));
+            
+            if (page.includes('aboutus')) {
+                document.getElementById('navAbout').classList.add('nav-active');
+            } else if (page.includes('whatice')) {
+                document.getElementById('navWhat').classList.add('nav-active');
+            } else if (page.includes('supportmain') || page.includes('support')) {
+                document.getElementById('navSupport').classList.add('nav-active');
+            }
+        }
+        setActive('main.html');
+
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'setActive') setActive(event.data.page);
+            if (event.data && event.data.type === 'pageLoaded') setActive(event.data.path);
+        });
+
+        // ===== 登录/注册 状态处理 =====
+        const loginBtn = document.getElementById('navLoginBtn');
+        const registerBtn = document.getElementById('navRegisterBtn');
+        const menuProfileBtn = document.getElementById('menuProfileBtn');
+        const menuLogoutBtn = document.getElementById('menuLogoutBtn');
+
+        function updateAuthUI() {
+            const currentUser = localStorage.getItem('ice_user');
+            if (currentUser) {
+                // 已登录
+                loginBtn.textContent = currentUser;
+                loginBtn.className = 'nav-btn btn-user';
+                registerBtn.style.display = 'none';
+                loginBtn.onclick = function(e) { e.preventDefault(); };
+            } else {
+                // 未登录
+                loginBtn.textContent = '登录';
+                loginBtn.className = 'nav-btn btn-login';
+                registerBtn.style.display = '';
+                loginBtn.onclick = function(e) {
+                    e.preventDefault();
+                    let targetPage = 'main.html';
+                    // 尝试读取当前内容框的路径，作为登录后的返回目标
+                    try {
+                        const contentFrame = window.parent.document.getElementById('contentFrame');
+                        let path = contentFrame.contentWindow.location.pathname;
+                        let filename = path.substring(path.lastIndexOf('/') + 1);
+                        if (filename) targetPage = filename;
+                    } catch (err) {}
+
+                    try {
+                        window.parent.postMessage({ type: 'navigate', url: 'tools/login.html?from=' + targetPage }, '*');
+                    } catch (err) {}
+                };
+            }
+        }
+        updateAuthUI();
+
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'updateAuth') updateAuthUI();
+        });
+
+        // 注册按钮（指向 sign-in.html）
+        registerBtn.onclick = function(e) {
+            e.preventDefault();
+            try {
+                window.parent.postMessage({ type: 'navigate', url: 'sign-in.html' }, '*');
+            } catch (err) {}
+        };
+
+        // 菜单内功能
+        menuProfileBtn.onclick = function(e) {
+            e.preventDefault();
+            alert('个人主页暂未实现');
+        };
+
+        menuLogoutBtn.onclick = function(e) {
+            e.preventDefault();
+            localStorage.removeItem('ice_user');
+            document.cookie = "ice_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            updateAuthUI();
+            try {
+                window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*');
+            } catch (err) {}
+        };
+
+        // ===== 下拉菜单悬浮控制（含防抖） =====
+        const userMenuContainer = document.querySelector('.user-menu-container');
+        const userDropdown = document.getElementById('userDropdown');
+        let dropdownTimeout;
+
+        function openDropdown() {
+            clearTimeout(dropdownTimeout);
+            if (localStorage.getItem('ice_user')) {
+                userDropdown.classList.add('show');
+                try {
+                    window.parent.postMessage({ type: 'settingsToggle', open: true }, '*');
+                } catch (e) {}
+            }
+        }
+
+        function closeDropdown() {
+            dropdownTimeout = setTimeout(() => {
+                userDropdown.classList.remove('show');
+                if (!settingsPanel.classList.contains('open')) {
+                    try {
+                        window.parent.postMessage({ type: 'settingsToggle', open: false }, '*');
+                    } catch (e) {}
+                }
+            }, 150);
+        }
+
+        if (userMenuContainer) {
+            userMenuContainer.addEventListener('mouseenter', openDropdown);
+            userMenuContainer.addEventListener('mouseleave', closeDropdown);
+            userDropdown.addEventListener('mouseenter', openDropdown);
+            userDropdown.addEventListener('mouseleave', closeDropdown);
+        }
+    </script>
+
+    <script src="themeswitcher.js"></script>
+    <script src="bgmswitcher.js"></script>
+</body>
+</html>
