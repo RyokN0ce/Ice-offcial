@@ -88,6 +88,9 @@
     <audio id="bgMusic" loop preload="none"></audio>
 
     <script>
+        // ⚠️ 确保这里是你最新的 API 地址
+        const API_BASE = 'https://api.iceapis.dpdns.org';
+
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsPanel = document.getElementById('settingsPanel');
         const mobileToggle = document.getElementById('mobileToggle');
@@ -119,7 +122,6 @@
         }
 
         // ===== 核心高亮与标题更新逻辑 =====
-        // ===== 核心高亮与标题更新逻辑 =====
         function updateNavUI() {
             try {
                 const contentFrame = window.parent.document.getElementById('contentFrame');
@@ -147,7 +149,7 @@
                     if (mobileTitle) mobileTitle.textContent = '社区';
                 } else if (page.includes('profile')) {
                     // 个人主页
-                    const navProfile = document.getElementById('navHome'); // 手机端用首页的 li 充当高亮位
+                    const navProfile = document.getElementById('navHome'); 
                     if (navProfile) navProfile.classList.add('nav-active');
                     if (mobileTitle) mobileTitle.textContent = '个人主页';
                 } else {
@@ -185,7 +187,6 @@
                 updateNavUI();
                 updateAuthUI();
             }
-            // 如果收到认证更新消息，立即刷新 UI
             if (event.data && event.data.type === 'updateAuth') {
                 updateAuthUI();
             }
@@ -205,12 +206,10 @@
             try {
                 const contentFrame = window.parent.document.getElementById('contentFrame');
                 let path = contentFrame.contentWindow.location.pathname;
-                // 获取完整的相对路径，比如 pages/sign-in.html 或 aboutus.html
                 let relativePath = path.replace(/^\/|\/$/g, ''); 
                 if (relativePath) targetPage = relativePath;
             } catch (err) {}
             try {
-                // 把完整的相对路径传过去
                 window.parent.postMessage({ type: 'navigate', url: 'tools/login.html?from=' + encodeURIComponent(targetPage) }, '*');
             } catch (err) {}
         }
@@ -263,11 +262,29 @@
             try { window.parent.postMessage({ type: 'navigate', url: 'pages/sign-in.html' }, '*'); } catch (err) {}
         };
 
-        // ===== 退出登录 =====
-        function logout() {
+        // ===== 退出登录（修复版） =====
+        async function logout() {
+            const currentUser = localStorage.getItem('ice_user');
+            
+            // 1. 如果本地有用户，先请求后端销毁会话
+            if (currentUser) {
+                try {
+                    await fetch(API_BASE + '/api/logout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: currentUser })
+                    });
+                } catch (e) {
+                    console.warn("后端退出请求失败，可能由于网络问题");
+                }
+            }
+
+            // 2. 清理本地存储
             localStorage.removeItem('ice_user');
             localStorage.removeItem('ice_token');
             document.cookie = "ice_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            
+            // 3. 刷新 UI 并跳转
             updateAuthUI();
             try { window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*'); } catch (err) {}
         }
