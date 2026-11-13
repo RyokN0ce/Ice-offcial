@@ -1,90 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建账号 · 冰冰冰官网</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #ffffff; --text: #1d1d1f; --text-secondary: #6e6e73;
+            --card-bg: #f5f5f7; --border: #d2d2d7; --link: #0066cc; --button-bg: #0071e3;
+        }
+        [data-theme="dark"] {
+            --bg: #000000; --text: #f5f5f7; --text-secondary: #a1a1a6;
+            --card-bg: #1c1c1e; --border: #38383a; --link: #2997ff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg); color: var(--text);
+            display: flex; align-items: center; justify-content: center; height: 100vh;
+            transition: background-color 0.35s ease;
+        }
+        .login-box {
+            background: var(--card-bg); padding: 40px; border-radius: 18px;
+            width: 100%; max-width: 380px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+        p.subhead { color: var(--text-secondary); margin-bottom: 24px; font-size: 14px; }
+        
+        .input-group { margin-bottom: 16px; text-align: left; }
+        .input-group label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; padding-left: 4px; }
+        input {
+            width: 100%; padding: 12px 16px; border-radius: 10px; 
+            border: 1px solid var(--border); background: var(--bg); 
+            color: var(--text); font-size: 15px; outline: none; transition: border 0.2s;
+        }
+        input:focus { border-color: var(--link); }
+
+        button {
+            width: 100%; padding: 12px; border-radius: 10px; border: none;
+            background: var(--button-bg); color: #fff; font-size: 16px;
+            font-weight: 600; cursor: pointer; margin-top: 10px; margin-bottom: 16px;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.85; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .msg { font-size: 14px; margin-bottom: 16px; display: none; text-align: center; }
+        .msg.error { color: #ff453a; }
+        .msg.success { color: #30d158; }
+        
+        .back-link { color: var(--link); text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="login-box">
+        <h1>创建冰鸣凭证</h1>
+        <p class="subhead">加入 I 市居民网络</p>
+        
+        <div class="msg" id="msgBox"></div>
+
+        <div class="input-group">
+            <label>用户名 (唯一凭证)</label>
+            <input type="text" id="username" placeholder="请输入用户名" autocomplete="off">
+        </div>
+        
+        <div class="input-group">
+            <label>密码</label>
+            <input type="password" id="password" placeholder="请输入密码">
+        </div>
+
+        <div class="input-group">
+            <label>昵称 (可选)</label>
+            <input type="text" id="nickname" placeholder="你希望别人怎么称呼你">
+        </div>
+
+        <div class="input-group">
+            <label>QQ号 (用于联系作者，可选)</label>
+            <input type="text" id="qq" placeholder="方便后续维护沟通">
+        </div>
+        
+        <button id="registerBtn">注册并进入</button>
+        <a href="#" class="back-link" id="cancelBtn">已有账号？返回登录</a>
+    </div>
+
+    <script>
         // 初始化主题
         const saved = localStorage.getItem('ice-theme') || 'auto';
         let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
         document.documentElement.setAttribute('data-theme', theme);
 
-        // ⚠️ 替换成你真实的 Worker 链接
+        // ⚠️ 确保这个链接是你实际的 Worker 链接，不要有尾随斜杠
         const API_BASE = 'https://ice-apis.ryokn0ce.workers.dev';
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const targetPage = urlParams.get('from') || 'main.html';
+        const msgBox = document.getElementById('msgBox');
+        const btn = document.getElementById('registerBtn');
 
-        let isForceLogin = false; // 是否强制执行踢下线
+        function showMsg(text, type) {
+            msgBox.textContent = text;
+            msgBox.className = 'msg ' + type;
+            msgBox.style.display = 'block';
+        }
 
-        document.getElementById('loginBtn').addEventListener('click', async function() {
+        btn.addEventListener('click', async function() {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value.trim();
-            const errorMsg = document.getElementById('errorMsg');
+            const nick = document.getElementById('nickname').value.trim();
+            const qq = document.getElementById('qq').value.trim();
 
             if (!user || !pass) {
-                errorMsg.textContent = "用户名和密码不能为空";
-                errorMsg.style.display = 'block';
+                showMsg("用户名和密码不能为空", "error");
                 return;
             }
 
-            const btn = this;
             btn.disabled = true;
-            btn.textContent = "验证中...";
-            errorMsg.style.display = 'none';
+            btn.textContent = "连接 I 市网络...";
+            msgBox.style.display = 'none';
 
             try {
-                // 如果是强制登录，走 force-login 接口
-                const endpoint = isForceLogin ? '/api/force-login' : '/api/login';
-                
-                const res = await fetch(API_BASE + endpoint, {
+                // 请求注册接口
+                const res = await fetch(API_BASE + '/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: user, password: pass })
+                    body: JSON.stringify({ username: user, password: pass, nickname: nick, qq: qq })
                 });
                 
                 const data = await res.json();
 
                 if (res.ok) {
-                    // 验证成功，保存 Token
-                    localStorage.setItem('ice_user', user);
-                    localStorage.setItem('ice_token', data.token); 
+                    showMsg("注册成功，正在自动登录...", "success");
+                    
+                    // 自动触发一次登录获取 token
+                    const loginRes = await fetch(API_BASE + '/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: user, password: pass })
+                    });
+                    const loginData = await loginRes.json();
+
+                    if (loginRes.ok) {
+                        localStorage.setItem('ice_user', user);
+                        localStorage.setItem('ice_token', loginData.token);
+                    } else {
+                        // 登录失败只存用户，不存 token
+                        localStorage.setItem('ice_user', user);
+                    }
                     
                     // 通知导航栏
-                    try {
-                        window.parent.document.getElementById('navFrame').contentWindow.postMessage({ type: 'updateAuth' }, '*');
-                    } catch (e) {}
+                    try { window.parent.postMessage({ type: 'updateAuth' }, '*'); } catch (e) {}
 
-                    // 跳转
-                    try {
-                        window.parent.postMessage({ type: 'navigate', url: targetPage }, '*');
-                    } catch (e) {
-                        window.location.href = '../' + targetPage;
-                    }
-                } else if (res.status === 409 && !isForceLogin) {
-                    // 触发互踢检测
-                    errorMsg.style.color = '#ff9f0a'; // 警告色
-                    errorMsg.innerHTML = data.message + '<br><span style="font-size:12px;cursor:pointer;text-decoration:underline;margin-top:8px;display:inline-block;" id="forceBtn">点此强制下线该设备并重新登录</span>';
-                    errorMsg.style.display = 'block';
-                    
-                    document.getElementById('forceBtn').onclick = function() {
-                        isForceLogin = true;
-                        btn.click(); // 重新触发登录
-                    };
+                    // 延迟跳回主页
+                    setTimeout(() => {
+                        try {
+                            window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*');
+                        } catch (e) {
+                            window.location.href = '../main.html';
+                        }
+                    }, 1000);
+
                 } else {
-                    errorMsg.style.color = '#ff453a';
-                    errorMsg.textContent = data.error || "认证失败";
-                    errorMsg.style.display = 'block';
+                    showMsg(data.error || "注册失败", "error");
+                    btn.disabled = false;
+                    btn.textContent = "注册并进入";
                 }
             } catch (err) {
-                errorMsg.style.color = '#ff453a';
-                errorMsg.textContent = "网络连接失败 (Worker 离线)";
-                errorMsg.style.display = 'block';
-            } finally {
+                showMsg("无法连接到服务器，请检查网络或 Worker 状态", "error");
                 btn.disabled = false;
-                btn.textContent = "验证并进入";
+                btn.textContent = "注册并进入";
             }
         });
 
         document.getElementById('cancelBtn').addEventListener('click', function(e) {
             e.preventDefault();
             try {
-                window.parent.postMessage({ type: 'navigate', url: targetPage }, '*');
+                window.parent.postMessage({ type: 'navigate', url: 'tools/login.html' }, '*');
             } catch (err) {
-                window.location.href = '../' + targetPage;
+                window.location.href = '../tools/login.html';
             }
         });
+    </script>
+</body>
+</html>

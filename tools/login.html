@@ -66,18 +66,13 @@
         let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
         document.documentElement.setAttribute('data-theme', theme);
 
-        // ⚠️ 替换成你真实的 Worker 链接
+        // ⚠️ 确保这个链接是你实际的 Worker 链接，不要有尾随斜杠
         const API_BASE = 'https://ice-apis.ryokn0ce.workers.dev';
 
-        // 获取返回目标（默认 main.html），并处理相对路径
         const urlParams = new URLSearchParams(window.location.search);
         const fromParam = urlParams.get('from');
         let targetPage = 'main.html';
-        
-        if (fromParam) {
-            targetPage = decodeURIComponent(fromParam);
-            // 如果是从子目录（如 pages/sign-in.html）来的，路径前面不带前缀，直接跳就行
-        }
+        if (fromParam) targetPage = decodeURIComponent(fromParam);
 
         let isForceLogin = false;
 
@@ -113,17 +108,15 @@
                     localStorage.setItem('ice_user', user);
                     localStorage.setItem('ice_token', data.token); 
                     
-                    // 通知导航栏刷新（通过外层框架，避免跨域报错）
+                    // 通知导航栏（通过外层框架转发）
+                    try { window.parent.postMessage({ type: 'updateAuth' }, '*'); } catch (e) {}
+                    
+                    // 跳转（去掉多余的斜杠）
+                    let finalUrl = targetPage.replace(/^\.\//, '').replace(/^\/+/, '');
                     try {
-                        window.parent.postMessage({ type: 'updateAuth' }, '*');
-                    } catch (e) {}
-
-                    // 跳转
-                    try {
-                        window.parent.postMessage({ type: 'navigate', url: targetPage }, '*');
+                        window.parent.postMessage({ type: 'navigate', url: finalUrl }, '*');
                     } catch (e) {
-                        // 如果本地直接打开，需回退两级目录（tools 下）
-                        window.location.href = '../' + targetPage;
+                        window.location.href = '../' + finalUrl;
                     }
                 } else if (res.status === 409 && !isForceLogin) {
                     // 互踢检测
@@ -142,7 +135,7 @@
                 }
             } catch (err) {
                 errorMsg.style.color = '#ff453a';
-                errorMsg.textContent = "网络连接失败 (Worker 离线)";
+                errorMsg.textContent = "网络连接失败 (请检查 Worker 链接是否正确)";
                 errorMsg.style.display = 'block';
             } finally {
                 btn.disabled = false;
@@ -152,10 +145,11 @@
 
         document.getElementById('cancelBtn').addEventListener('click', function(e) {
             e.preventDefault();
+            let finalUrl = targetPage.replace(/^\.\//, '').replace(/^\/+/, '');
             try {
-                window.parent.postMessage({ type: 'navigate', url: targetPage }, '*');
+                window.parent.postMessage({ type: 'navigate', url: finalUrl }, '*');
             } catch (err) {
-                window.location.href = '../' + targetPage;
+                window.location.href = '../' + finalUrl;
             }
         });
     </script>
