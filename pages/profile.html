@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人主页 · 冰冰冰官网</title>
+    <!-- 引入自制的日历模块 -->
+    <link rel="stylesheet" href="../tools/dayselect.css">
     <style>
+        /* ... 保持你上一版的 CSS 不变 ... */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg: #ffffff; --text: #1d1d1f; --text-secondary: #6e6e73;
@@ -23,7 +26,6 @@
             background: var(--card-bg); width: 100%; max-width: 600px;
             border-radius: 24px; padding: 40px; position: relative;
         }
-        
         .avatar-wrapper { position: relative; width: 120px; height: 120px; margin: 0 auto 20px; }
         .avatar-large {
             width: 100%; height: 100%; border-radius: 50%; background: var(--border);
@@ -32,7 +34,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .avatar-large img { width: 100%; height: 100%; object-fit: cover; }
-        
         .avatar-upload-label {
             position: absolute; bottom: 0; right: 0; background: var(--button-bg); color: #fff;
             width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -53,14 +54,13 @@
         .edit-section { display: none; flex-direction: column; gap: 16px; margin-top: 20px; }
         .input-group label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
         
-        input[type="text"], input[type="password"], input[type="date"], select {
+        input[type="text"], input[type="password"], select, .fake-date-input {
             width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
             background: var(--bg); color: var(--text); font-size: 15px; outline: none;
             font-family: inherit; transition: border 0.2s;
         }
-        input[type="text"]:focus, input[type="password"]:focus, input[type="date"]:focus, select:focus {
-            border-color: var(--link);
-        }
+        .fake-date-input { cursor: pointer; display: flex; align-items: center; }
+        .fake-date-input:empty::before { content: '选择日期'; color: var(--text-secondary); }
         
         .btn-row { display: flex; gap: 10px; margin-top: 10px; }
         button {
@@ -75,10 +75,7 @@
         .msg.error { color: #ff453a; }
         .msg.success { color: #30d158; }
 
-        /* 修改密码的特殊分隔线 */
-        .password-section {
-            margin-top: 30px; padding-top: 20px; border-top: 1px dashed var(--border);
-        }
+        .password-section { margin-top: 30px; padding-top: 20px; border-top: 1px dashed var(--border); }
         .password-section h3 { font-size: 16px; margin-bottom: 15px; color: var(--text); }
     </style>
 </head>
@@ -128,7 +125,9 @@
                 </div>
                 <div class="input-group">
                     <label>生日</label>
-                    <input type="date" id="inputBirthday">
+                    <!-- 替换为自绘控件 -->
+                    <div class="fake-date-input" id="customDateInput"></div>
+                    <input type="hidden" id="inputBirthday">
                 </div>
             </div>
             <div class="input-group">
@@ -159,6 +158,8 @@
         </div>
     </div>
 
+    <!-- 引入 dayselect.js -->
+    <script src="../tools/dayselect.js"></script>
     <script>
         const saved = localStorage.getItem('ice-theme') || 'auto';
         let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
@@ -175,6 +176,19 @@
         const msgBox = document.getElementById('msgBox');
         let currentAvatarBase64 = ""; 
 
+        // =============== 自制日期选择器接入 ===============
+        const customDateInput = document.getElementById('customDateInput');
+        const hiddenDateInput = document.getElementById('inputBirthday');
+
+        customDateInput.onclick = function() {
+            // 唤起自制日历，传入当前的日期值
+            DaySelect.open(hiddenDateInput.value, function(selectedDateStr) {
+                hiddenDateInput.value = selectedDateStr;
+                customDateInput.textContent = selectedDateStr;
+            });
+        };
+
+        // =============== 加载资料 ===============
         async function loadProfile() {
             if (!targetUser) {
                 document.getElementById('displayNickname').textContent = "未登录";
@@ -203,9 +217,32 @@
                         document.getElementById('inputNickname').value = u.nickname || u.username;
                         document.getElementById('inputQQ').value = u.qq_number || "";
                         document.getElementById('inputLocation').value = u.location || "";
-                        document.getElementById('inputBirthday').value = u.birthday || "";
+                        
+                        // 生日数据处理
+                        hiddenDateInput.value = u.birthday || "";
+                        if (u.birthday) {
+                            customDateInput.textContent = u.birthday;
+                        }
+                        
                         document.getElementById('inputGender').value = u.gender || "";
                         currentAvatarBase64 = u.avatar_url || ""; 
+                    }
+
+                    // =============== 生日彩蛋逻辑 ===============
+                    // 如果当前用户在看自己的主页，且设置了生日
+                    if (isMyProfile && u.birthday) {
+                        const today = new Date();
+                        // 获取当前的 月-日 (例如 "11-13")
+                        const currentMMDD = String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+                        // 从保存的生日字符串中提取 "YYYY-MM-DD" 的 "MM-DD"
+                        const birthdayMMDD = u.birthday.substring(5); 
+                        
+                        if (currentMMDD === birthdayMMDD) {
+                            // 触发彩蛋：向父窗口发送播放特殊 BGM 的指令
+                            try {
+                                window.parent.postMessage({ type: 'playBirthdayBgm' }, '*');
+                            } catch (e) {}
+                        }
                     }
                 }
             } catch (e) {}
@@ -261,7 +298,7 @@
                 avatar_url: currentAvatarBase64,
                 qq: document.getElementById('inputQQ').value.trim(),
                 location: document.getElementById('inputLocation').value.trim(),
-                birthday: document.getElementById('inputBirthday').value,
+                birthday: hiddenDateInput.value, // 使用隐藏域里的值
                 gender: document.getElementById('inputGender').value
             };
 

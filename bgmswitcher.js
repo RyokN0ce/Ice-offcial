@@ -128,3 +128,24 @@
         init();
     }
 })();
+// ===== 接收生日彩蛋指令 =====
+window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'playBirthdayBgm') {
+        // 切歌到 e.mp3
+        const birthdayBgm = 'res/mainaudio/e.mp3';
+        
+        // 如果当前正在播放其他歌，就切过去
+        bgMusic.src = birthdayBgm;
+        bgMusic.play().catch(e => {
+            console.log("自动播放被拦截，等待用户点击页面播放");
+        });
+        
+        // 可选：把设置面板里的开关强制打开
+        const musicToggle = document.getElementById('musicToggle');
+        if (musicToggle && !musicToggle.classList.contains('on')) {
+            musicToggle.classList.add('on');
+            musicEnabled = true;
+            localStorage.setItem('ice-music-enabled', 'true');
+        }
+    }
+});
