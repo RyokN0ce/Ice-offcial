@@ -28,14 +28,23 @@
             <li id="navSupport"><a href="#" data-nav="pages/supportmain.html">支持</a></li>
             <li id="navAbout"><a href="#" data-nav="aboutus.html">关于</a></li>
             
-            <!-- 手机端专属：把登录/注册塞进折叠菜单的最底部 -->
-            <li class="mobile-only-auth" style="margin-top: 10px;"><a href="#" id="mobileLoginBtn">登录</a></li>
-            <li class="mobile-only-auth"><a href="#" id="mobileRegisterBtn">注册</a></li>
+            <!-- 手机端专属：把登录/注册塞进折叠菜单 -->
+            <li class="mobile-only-auth">
+                <a href="#" id="mobileLoginBtn">登录</a>
+            </li>
+            <li class="mobile-only-auth">
+                <a href="#" id="mobileRegisterBtn">注册</a>
+            </li>
+            <!-- 手机端专属：退出登录按钮 (默认隐藏，登录后显示) -->
+            <li class="mobile-only-auth" id="mobileLogoutLi" style="display: none;">
+                <a href="#" id="mobileLogoutBtn" style="color: #ff453a;">退出登录</a>
+            </li>
         </ul>
+    </nav>
 
     <!-- 右侧按钮组 -->
     <div class="nav-right-group">
-        <!-- 桌面端的登录/用户菜单 -->
+        <!-- 桌面端的登录/用户菜单 (加上 desktop-only-auth 以保证手机端隐藏) -->
         <div class="user-menu-container desktop-only-auth">
             <a href="#" class="nav-btn btn-login" id="navLoginBtn">登录</a>
             <div class="user-dropdown" id="userDropdown">
@@ -117,16 +126,12 @@
                 const contentFrame = window.parent.document.getElementById('contentFrame');
                 if (!contentFrame) return;
                 
-                // 获取 iframe 里当前页面的文件名（比如 main.html, aboutus.html）
                 const path = contentFrame.contentWindow.location.pathname;
                 const page = path.substring(path.lastIndexOf('/') + 1) || 'main.html';
                 
                 const mobileTitle = document.getElementById('mobileCurrentTitle');
-                
-                // 清除所有高亮
                 document.querySelectorAll('.global-nav li').forEach(li => li.classList.remove('nav-active'));
                 
-                // 根据页面分发高亮和标题
                 if (page.includes('aboutus')) {
                     document.getElementById('navAbout').classList.add('nav-active');
                     if (mobileTitle) mobileTitle.textContent = '关于';
@@ -137,19 +142,15 @@
                     document.getElementById('navSupport').classList.add('nav-active');
                     if (mobileTitle) mobileTitle.textContent = '支持';
                 } else {
-                    // 默认是首页
                     const homeNav = document.getElementById('navHome');
                     if (homeNav) homeNav.classList.add('nav-active');
                     const desktopLogo = document.querySelector('.logo-placeholder');
                     if (desktopLogo) desktopLogo.classList.add('nav-active');
                     if (mobileTitle) mobileTitle.textContent = '冰冰冰官网';
                 }
-            } catch (e) {
-                // 跨域或没加载完时静默处理
-            }
+            } catch (e) {}
         }
 
-        // 初始化执行一次
         setTimeout(updateNavUI, 500);
 
         // ===== 导航点击 =====
@@ -159,20 +160,15 @@
                 const url = this.dataset.nav;
                 if (url && url !== '#') {
                     window.parent.postMessage({ type: 'navigate', url: url }, '*');
-                    
-                    // 点击后收起手机菜单
                     if (navMenu.classList.contains('show-mobile-menu')) {
                         navMenu.classList.remove('show-mobile-menu');
                         try { window.parent.postMessage({ type: 'settingsToggle', open: false }, '*'); } catch (err) {}
                     }
-                    
-                    // 点击后延迟一小会儿刷新 UI（等待 iframe 跳转）
                     setTimeout(updateNavUI, 300);
                 }
             });
         });
 
-        // 监听消息，当 iframe 告诉切换完成时，刷新 UI
         window.addEventListener('message', function(event) {
             if (event.data && (event.data.type === 'pageLoaded' || event.data.type === 'setActive')) {
                 updateNavUI();
@@ -184,6 +180,8 @@
         const registerBtn = document.getElementById('navRegisterBtn');
         const mobileLoginBtn = document.getElementById('mobileLoginBtn');
         const mobileRegisterBtn = document.getElementById('mobileRegisterBtn');
+        const mobileLogoutLi = document.getElementById('mobileLogoutLi');
+        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
         
         function handleLoginClick(e) {
             e.preventDefault();
@@ -202,6 +200,7 @@
         function updateAuthUI() {
             const currentUser = localStorage.getItem('ice_user');
             
+            // 桌面端
             if (currentUser) {
                 loginBtn.textContent = currentUser;
                 loginBtn.className = 'nav-btn btn-user';
@@ -214,12 +213,15 @@
                 loginBtn.onclick = handleLoginClick;
             }
 
+            // 手机端
             if (currentUser) {
                 if (mobileLoginBtn) mobileLoginBtn.textContent = '个人中心 (' + currentUser + ')';
                 if (mobileRegisterBtn) mobileRegisterBtn.parentElement.style.display = 'none';
+                if (mobileLogoutLi) mobileLogoutLi.style.display = 'block';
             } else {
                 if (mobileLoginBtn) mobileLoginBtn.textContent = '登录';
                 if (mobileRegisterBtn) mobileRegisterBtn.parentElement.style.display = 'block';
+                if (mobileLogoutLi) mobileLogoutLi.style.display = 'none';
             }
         }
         updateAuthUI();
@@ -228,38 +230,49 @@
             if (localStorage.getItem('ice_user')) {
                 e.preventDefault();
                 alert('个人主页暂未实现');
-                if (navMenu.classList.contains('show-mobile-menu')) {
-                    navMenu.classList.remove('show-mobile-menu');
-                    try { window.parent.postMessage({ type: 'settingsToggle', open: false }, '*'); } catch (err) {}
-                }
             } else {
                 handleLoginClick(e);
             }
         };
+        
         if (mobileRegisterBtn) mobileRegisterBtn.onclick = function(e) {
             e.preventDefault();
             try { window.parent.postMessage({ type: 'navigate', url: 'pages/sign-in.html' }, '*'); } catch (err) {}
         };
+        
         registerBtn.onclick = function(e) {
             e.preventDefault();
             try { window.parent.postMessage({ type: 'navigate', url: 'pages/sign-in.html' }, '*'); } catch (err) {}
         };
 
-        window.addEventListener('message', function(event) {
-            if (event.data && event.data.type === 'updateAuth') updateAuthUI();
-        });
-
-        // 下拉菜单
-        const menuProfileBtn = document.getElementById('menuProfileBtn');
-        const menuLogoutBtn = document.getElementById('menuLogoutBtn');
-        menuProfileBtn.onclick = function(e) { e.preventDefault(); alert('个人主页暂未实现'); };
-        menuLogoutBtn.onclick = function(e) {
-            e.preventDefault();
+        // ===== 退出登录 =====
+        function logout() {
             localStorage.removeItem('ice_user');
+            localStorage.removeItem('ice_token');
             document.cookie = "ice_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             updateAuthUI();
             try { window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*'); } catch (err) {}
-        };
+        }
+
+        const menuLogoutBtn = document.getElementById('menuLogoutBtn');
+        if (menuLogoutBtn) menuLogoutBtn.onclick = function(e) { e.preventDefault(); logout(); };
+        
+        if (mobileLogoutBtn) {
+            mobileLogoutBtn.onclick = function(e) {
+                e.preventDefault();
+                logout();
+                if (navMenu.classList.contains('show-mobile-menu')) {
+                    navMenu.classList.remove('show-mobile-menu');
+                    try { window.parent.postMessage({ type: 'settingsToggle', open: false }, '*'); } catch (err) {}
+                }
+            };
+        }
+
+        // ===== 下拉菜单 =====
+        const menuProfileBtn = document.getElementById('menuProfileBtn');
+        if (menuProfileBtn) {
+            menuProfileBtn.onclick = function(e) { e.preventDefault(); alert('个人主页暂未实现'); };
+        }
 
         const userMenuContainer = document.querySelector('.user-menu-container');
         const userDropdown = document.getElementById('userDropdown');

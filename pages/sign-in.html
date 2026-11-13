@@ -1,190 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>联系作者 · 冰冰冰官网</title>
-    <style>
-        /* 保持你原来的聚合页样式 */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg: #f5f5f7; 
-            --text: #1d1d1f; 
-            --text-secondary: #6e6e73;
-            --card-bg: #ffffff; 
-            --link: #0066cc; 
-            --border: #d2d2d7;
-        }
-        [data-theme="dark"] {
-            --bg: #000000; 
-            --text: #f5f5f7; 
-            --text-secondary: #a1a1a6;
-            --card-bg: #1c1c1e; 
-            --link: #2997ff; 
-            --border: #38383a;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg); color: var(--text);
-            line-height: 1.5; transition: background-color 0.35s ease;
-            display: flex; flex-direction: column; align-items: center;
-            min-height: 100vh; padding: 60px 20px;
-        }
-        
-        .avatar {
-            width: 100px; height: 100px; border-radius: 50%;
-            background: linear-gradient(145deg, #e8e8ed, #d2d2d7);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 40px; margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        [data-theme="dark"] .avatar {
-            background: linear-gradient(145deg, #2c2c2e, #1c1c1e);
-        }
-
-        h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
-        p.subhead { font-size: 15px; color: var(--text-secondary); margin-bottom: 40px; text-align: center; max-width: 400px; }
-
-        .link-list {
-            width: 100%; max-width: 400px;
-            display: flex; flex-direction: column; gap: 12px;
-        }
-
-        .link-btn {
-            display: flex; align-items: center;
-            background-color: var(--card-bg);
-            padding: 14px 20px;
-            border-radius: 14px;
-            text-decoration: none !important;
-            color: var(--text) !important;
-            font-size: 16px; font-weight: 500;
-            border: 1px solid var(--border);
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-        }
-
-        .link-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-            border-color: var(--text-secondary);
-        }
-
-        .icon-box {
-            width: 28px; height: 28px;
-            margin-right: 14px;
-            border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px;
-            background: var(--bg);
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-        .icon-box img {
-            width: 100%; height: 100%;
-            object-fit: contain;
-            display: none;
-        }
-
-        .link-btn .text { flex: 1; }
-        .link-btn .arrow { color: var(--text-secondary); font-size: 14px; }
-
-        .notice {
-            margin-top: 40px; max-width: 400px; width: 100%;
-            background-color: rgba(255, 159, 10, 0.1);
-            border: 1px solid rgba(255, 159, 10, 0.2);
-            border-radius: 12px; padding: 16px;
-            font-size: 13px; color: #ff9f0a;
-            text-align: center; line-height: 1.6;
-        }
-
-        .back-home {
-            margin-top: 30px; color: var(--link);
-            text-decoration: none; font-size: 15px; cursor: pointer;
-        }
-        .back-home:hover { text-decoration: underline; }
-    </style>
-</head>
-<body>
-
-    <div class="avatar">🧊</div>
-    <h1>注册账号</h1>
-    <p class="subhead">最好是通过GitCode仓库反馈，或者说是邮箱反馈</p>
-
-    <div class="link-list">
-        <!-- 1. GitCode -->
-        <a href="https://gitcode.com/RyokN0ce" target="_blank" class="link-btn">
-            <div class="icon-box" data-img="../res/otherphoto/gc.png" data-fallback="🦊"><img alt="GitCode"></div>
-            <div class="text">GitCode 仓库（推荐）</div><div class="arrow">↗</div>
-        </a>
-
-        <!-- 2. Gitee -->
-        <a href="https://gitee.com/RyokN0ce" target="_blank" class="link-btn">
-            <div class="icon-box" data-img="../res/otherphoto/gy.png" data-fallback="🦊"><img alt="Gitee"></div>
-            <div class="text">Gitee 仓库</div><div class="arrow">↗</div>
-        </a>
-
-        <!-- 3. GitHub -->
-        <a href="https://github.com/RyokN0ce" target="_blank" class="link-btn">
-            <div class="icon-box" data-img="../res/otherphoto/gh.png" data-fallback="🐙"><img alt="GitHub"></div>
-            <div class="text">GitHub 主页</div><div class="arrow">↗</div>
-        </a>
-
-        <!-- 4. Bilibili -->
-        <a href="https://space.bilibili.com/3493128539474619" target="_blank" class="link-btn">
-            <div class="icon-box" data-img="../res/otherphoto/bvs.png" data-fallback="📺"><img alt="Bilibili"></div>
-            <div class="text">Bilibili 空间</div><div class="arrow">↗</div>
-        </a>
-
-        <!-- 5. 抖音 -->
-        <a href="https://www.douyin.com/user/MS4wLjABAAAAI0-ZXodBKAR06KxpQoRW1Nnrg3DSEKdcHyE03CoJCX6VMBgm8bOiAAYTNpjhF89y?from_tab_name=main" target="_blank" class="link-btn">
-            <div class="icon-box" data-img="../res/otherphoto/bno.png" data-fallback="🎵"><img alt="抖音"></div>
-            <div class="text">抖音主页</div><div class="arrow">↗</div>
-        </a>
-
-    <div class="notice">
-        ⚠️ 目前这个项目只有一个作者，想加入维护团队，请联系作者。
-    </div>
-    <div class="notice">
-        ⚠️ 官方邮箱:RyokN0ce@outlook.com。
-    </div>
-    <a href="#" class="back-home" id="backHomeBtn">返回官网主页</a>
-    </div>
-
-    <script>
-        // 图片加载与容错
-        document.querySelectorAll('.icon-box').forEach(function(box) {
-            var imgPath = box.getAttribute('data-img');
-            var fallbackIcon = box.getAttribute('data-fallback');
-            var img = box.querySelector('img');
-
-            img.onload = function() {
-                img.style.display = 'block';
-                box.style.background = 'transparent';
-                box.innerHTML = '';
-                box.appendChild(img);
-            };
-            img.onerror = function() {
-                box.innerHTML = fallbackIcon;
-            };
-            img.src = imgPath;
-        });
-
         // 初始化主题
         const saved = localStorage.getItem('ice-theme') || 'auto';
         let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
         document.documentElement.setAttribute('data-theme', theme);
 
-        // 返回首页 (带后缀)
-        document.getElementById('backHomeBtn').addEventListener('click', function(e) {
-            e.preventDefault();
+        // ⚠️ 替换成你真实的 Worker 链接
+        const API_BASE = 'https://ice-apis.ryokn0ce.workers.dev';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetPage = urlParams.get('from') || 'main.html';
+
+        let isForceLogin = false; // 是否强制执行踢下线
+
+        document.getElementById('loginBtn').addEventListener('click', async function() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (!user || !pass) {
+                errorMsg.textContent = "用户名和密码不能为空";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = "验证中...";
+            errorMsg.style.display = 'none';
+
             try {
-                window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*');
+                // 如果是强制登录，走 force-login 接口
+                const endpoint = isForceLogin ? '/api/force-login' : '/api/login';
+                
+                const res = await fetch(API_BASE + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+                
+                const data = await res.json();
+
+                if (res.ok) {
+                    // 验证成功，保存 Token
+                    localStorage.setItem('ice_user', user);
+                    localStorage.setItem('ice_token', data.token); 
+                    
+                    // 通知导航栏
+                    try {
+                        window.parent.document.getElementById('navFrame').contentWindow.postMessage({ type: 'updateAuth' }, '*');
+                    } catch (e) {}
+
+                    // 跳转
+                    try {
+                        window.parent.postMessage({ type: 'navigate', url: targetPage }, '*');
+                    } catch (e) {
+                        window.location.href = '../' + targetPage;
+                    }
+                } else if (res.status === 409 && !isForceLogin) {
+                    // 触发互踢检测
+                    errorMsg.style.color = '#ff9f0a'; // 警告色
+                    errorMsg.innerHTML = data.message + '<br><span style="font-size:12px;cursor:pointer;text-decoration:underline;margin-top:8px;display:inline-block;" id="forceBtn">点此强制下线该设备并重新登录</span>';
+                    errorMsg.style.display = 'block';
+                    
+                    document.getElementById('forceBtn').onclick = function() {
+                        isForceLogin = true;
+                        btn.click(); // 重新触发登录
+                    };
+                } else {
+                    errorMsg.style.color = '#ff453a';
+                    errorMsg.textContent = data.error || "认证失败";
+                    errorMsg.style.display = 'block';
+                }
             } catch (err) {
-                window.location.href = 'main.html';
+                errorMsg.style.color = '#ff453a';
+                errorMsg.textContent = "网络连接失败 (Worker 离线)";
+                errorMsg.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "验证并进入";
             }
         });
 
-        try { window.parent.postMessage({ type: 'pageLoaded', path: window.location.pathname }, '*'); } catch (e) {}
-    </script>
-</body>
-</html>
+        document.getElementById('cancelBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            try {
+                window.parent.postMessage({ type: 'navigate', url: targetPage }, '*');
+            } catch (err) {
+                window.location.href = '../' + targetPage;
+            }
+        });
