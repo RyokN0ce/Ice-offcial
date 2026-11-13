@@ -16,23 +16,22 @@
         <div class="mobile-current-title" id="mobileCurrentTitle">冰冰冰官网</div>
         
         <ul id="navMenu">
-            <!-- 折叠菜单里的项 -->
-            <li class="logo-placeholder"><a href="#" data-nav="main.html">🧊冰冰冰官网</a></li>
+            <!-- 桌面端 Logo (手机端隐藏) -->
+            <li class="logo-placeholder desktop-only-auth"><a href="#" data-nav="main.html">🧊冰冰冰官网</a></li>
+            
+            <!-- 手机端专属的“首页”入口 -->
+            <li class="mobile-only-auth" id="navHome"><a href="#" data-nav="main.html">首页</a></li>
+
             <li id="navWhat"><a href="#" data-nav="whatice.html">什么是冰冰冰</a></li>
             <li><a href="#" data-nav="#">探索冰冰冰档案馆</a></li>
             <li><a href="#" data-nav="#">冰冰冰社区</a></li>
             <li id="navSupport"><a href="#" data-nav="pages/supportmain.html">支持</a></li>
             <li id="navAbout"><a href="#" data-nav="aboutus.html">关于</a></li>
             
-            <!-- 手机端专属：把登录/注册塞进折叠菜单 -->
-            <li class="mobile-only-auth">
-                <a href="#" id="mobileLoginBtn">登录</a>
-            </li>
-            <li class="mobile-only-auth">
-                <a href="#" id="mobileRegisterBtn">注册</a>
-            </li>
+            <!-- 手机端专属：把登录/注册塞进折叠菜单的最底部 -->
+            <li class="mobile-only-auth" style="margin-top: 10px;"><a href="#" id="mobileLoginBtn">登录</a></li>
+            <li class="mobile-only-auth"><a href="#" id="mobileRegisterBtn">注册</a></li>
         </ul>
-    </nav>
 
     <!-- 右侧按钮组 -->
     <div class="nav-right-group">
@@ -112,6 +111,47 @@
             });
         }
 
+        // ===== 核心高亮与标题更新逻辑 =====
+        function updateNavUI() {
+            try {
+                const contentFrame = window.parent.document.getElementById('contentFrame');
+                if (!contentFrame) return;
+                
+                // 获取 iframe 里当前页面的文件名（比如 main.html, aboutus.html）
+                const path = contentFrame.contentWindow.location.pathname;
+                const page = path.substring(path.lastIndexOf('/') + 1) || 'main.html';
+                
+                const mobileTitle = document.getElementById('mobileCurrentTitle');
+                
+                // 清除所有高亮
+                document.querySelectorAll('.global-nav li').forEach(li => li.classList.remove('nav-active'));
+                
+                // 根据页面分发高亮和标题
+                if (page.includes('aboutus')) {
+                    document.getElementById('navAbout').classList.add('nav-active');
+                    if (mobileTitle) mobileTitle.textContent = '关于';
+                } else if (page.includes('whatice')) {
+                    document.getElementById('navWhat').classList.add('nav-active');
+                    if (mobileTitle) mobileTitle.textContent = '什么是冰冰冰';
+                } else if (page.includes('supportmain')) {
+                    document.getElementById('navSupport').classList.add('nav-active');
+                    if (mobileTitle) mobileTitle.textContent = '支持';
+                } else {
+                    // 默认是首页
+                    const homeNav = document.getElementById('navHome');
+                    if (homeNav) homeNav.classList.add('nav-active');
+                    const desktopLogo = document.querySelector('.logo-placeholder');
+                    if (desktopLogo) desktopLogo.classList.add('nav-active');
+                    if (mobileTitle) mobileTitle.textContent = '冰冰冰官网';
+                }
+            } catch (e) {
+                // 跨域或没加载完时静默处理
+            }
+        }
+
+        // 初始化执行一次
+        setTimeout(updateNavUI, 500);
+
         // ===== 导航点击 =====
         document.querySelectorAll('[data-nav]').forEach(link => {
             link.addEventListener('click', function(e) {
@@ -119,37 +159,24 @@
                 const url = this.dataset.nav;
                 if (url && url !== '#') {
                     window.parent.postMessage({ type: 'navigate', url: url }, '*');
+                    
+                    // 点击后收起手机菜单
                     if (navMenu.classList.contains('show-mobile-menu')) {
                         navMenu.classList.remove('show-mobile-menu');
                         try { window.parent.postMessage({ type: 'settingsToggle', open: false }, '*'); } catch (err) {}
                     }
+                    
+                    // 点击后延迟一小会儿刷新 UI（等待 iframe 跳转）
+                    setTimeout(updateNavUI, 300);
                 }
             });
         });
 
-        // ===== 高亮逻辑 (同时更新手机端中央文字) =====
-        function setActive(page) {
-            document.querySelectorAll('.global-nav li').forEach(li => li.classList.remove('nav-active'));
-            const mobileTitle = document.getElementById('mobileCurrentTitle');
-            
-            if (page.includes('aboutus')) {
-                document.getElementById('navAbout').classList.add('nav-active');
-                if (mobileTitle) mobileTitle.textContent = '关于';
-            } else if (page.includes('whatice')) {
-                document.getElementById('navWhat').classList.add('nav-active');
-                if (mobileTitle) mobileTitle.textContent = '什么是冰冰冰';
-            } else if (page.includes('supportmain') || page.includes('support')) {
-                document.getElementById('navSupport').classList.add('nav-active');
-                if (mobileTitle) mobileTitle.textContent = '支持';
-            } else {
-                if (mobileTitle) mobileTitle.textContent = '冰冰冰官网';
-            }
-        }
-        setActive('main.html');
-
+        // 监听消息，当 iframe 告诉切换完成时，刷新 UI
         window.addEventListener('message', function(event) {
-            if (event.data && event.data.type === 'setActive') setActive(event.data.page);
-            if (event.data && event.data.type === 'pageLoaded') setActive(event.data.path);
+            if (event.data && (event.data.type === 'pageLoaded' || event.data.type === 'setActive')) {
+                updateNavUI();
+            }
         });
 
         // ===== 登录/注册 状态处理 =====
@@ -201,6 +228,10 @@
             if (localStorage.getItem('ice_user')) {
                 e.preventDefault();
                 alert('个人主页暂未实现');
+                if (navMenu.classList.contains('show-mobile-menu')) {
+                    navMenu.classList.remove('show-mobile-menu');
+                    try { window.parent.postMessage({ type: 'settingsToggle', open: false }, '*'); } catch (err) {}
+                }
             } else {
                 handleLoginClick(e);
             }

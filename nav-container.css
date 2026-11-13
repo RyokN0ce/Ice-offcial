@@ -78,14 +78,14 @@ html, body {
 
 /* 手机端专属元素的默认状态 */
 .mobile-toggle, .mobile-current-title, .mobile-only-auth {
-    display: none;
+    display: none !important;
 }
 
 /* 右侧按钮组 */
 .nav-right-group {
     position: absolute;
     right: 24px;
-    top: 7px;
+    top: 8px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -93,19 +93,21 @@ html, body {
     overflow: visible;
 }
 
+/* 完美胶囊按钮 */
 .nav-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 32px;
-    padding: 0 16px;
+    padding: 8px 16px; /* 用 padding 撑开高度 */
     font-size: 13px;
     font-weight: 500;
-    border-radius: 16px;
+    border-radius: 999px; /* 绝对半圆胶囊 */
     text-decoration: none !important;
     transition: all 0.2s ease;
     cursor: pointer;
     white-space: nowrap;
+    line-height: 1; /* 解决字体偏上/偏下 */
+    box-sizing: border-box;
 }
 
 .btn-login { background-color: var(--link); color: #ffffff !important; border: 1px solid transparent; }
@@ -181,29 +183,36 @@ html, body {
 .music-select:focus { border-color: var(--link); }
 .setting-divider { height: 1px; background-color: var(--panel-border); margin: 2px 0; }
 
-/* ===== 基础响应式 ===== */
+/* 基础响应式 */
 @media (max-width: 1024px) {
     .nav-right-group { gap: 8px; }
-    .nav-btn { padding: 0 10px; font-size: 12px; }
+    .nav-btn { padding: 6px 12px; font-size: 12px; }
 }
 
 /* ================================================================= */
-/* ===== 手机端完全体适配（纯 CSS 媒体查询，绝对稳定） ===== */
-/* ================================================================= */
-/* ================================================================= */
-/* ===== 手机端完全体适配（纯 CSS 媒体查询，绝对稳定） ===== */
+/* ===== 手机端完全体适配 ===== */
 /* ================================================================= */
 @media (max-width: 768px) {
     .global-nav {
         justify-content: center;
         padding: 0 12px;
-        /* 删掉 overflow: visible; 和 z-index，让它回归普通流 */
     }
 
-    .desktop-only-auth { display: none !important; }
+    .desktop-only-auth { 
+        display: none !important; 
+    }
+
+    .mobile-toggle { 
+        display: block !important; 
+    }
+    .mobile-current-title { 
+        display: block !important; 
+    }
+    .mobile-only-auth { 
+        display: block !important; 
+    }
 
     .mobile-toggle {
-        display: block;
         color: var(--nav-text);
         font-size: 24px;
         cursor: pointer;
@@ -215,7 +224,6 @@ html, body {
     }
 
     .mobile-current-title {
-        display: block;
         font-size: 15px;
         font-weight: 600;
         color: var(--nav-text);
@@ -224,25 +232,20 @@ html, body {
         pointer-events: auto;
     }
 
-    .mobile-only-auth {
-        display: block;
-        border-top: 1px solid rgba(255,255,255,0.1);
-    }
-
-    /* 👇 核心修改：直接使用 fixed 定位，脱离父元素限制 👇 */
+    /* 手机端折叠下拉菜单 */
     .global-nav ul {
         display: none; 
-        position: fixed; /* 改为 fixed */
+        position: fixed;
         top: 48px;
         left: 0;
-        width: 100vw; /* 强制全屏宽度 */
+        width: 100vw;
         height: auto;
         background-color: var(--nav-bg);
         flex-direction: column;
         padding: 10px 0;
         box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        z-index: 9999; /* 极高层级 */
-        pointer-events: auto; /* 必须允许点击 */
+        z-index: 9999;
+        pointer-events: auto; 
     }
 
     .global-nav ul.show-mobile-menu {
@@ -254,15 +257,29 @@ html, body {
         width: 100%;
         text-align: center;
         border-bottom: 1px solid rgba(255,255,255,0.05);
-        pointer-events: auto; /* 必须允许点击 */
+        pointer-events: auto;
     }
 
-    .logo-placeholder { display: none; }
+    .global-nav li:last-child {
+        border-bottom: none;
+    }
 
+    .logo-placeholder { 
+        display: none; 
+    }
+
+    /* 右侧按钮组 */
     .nav-right-group {
         right: 12px;
         top: 10px;
         gap: 8px;
+    }
+
+    .nav-btn {
+        padding: 6px 12px; 
+        font-size: 12px;
+        line-height: 1;
+        border-radius: 999px; 
     }
 
     .settings-btn {

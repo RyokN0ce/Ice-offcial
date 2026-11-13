@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <status>
     <!-- 把下面这行的 normal 改成 maintenance 就是维护模式了 -->
-    <current>nomral</current>
+    <current>normal</current>
 </status>
