@@ -24,7 +24,7 @@
 
             <li id="navWhat"><a href="#" data-nav="whatice.html">什么是冰冰冰</a></li>
             <li><a href="#" data-nav="#">探索冰冰冰档案馆</a></li>
-            <li><a href="#" data-nav="#">冰冰冰社区</a></li>
+            <li><a href="#" data-nav="pages/community.html">冰冰冰社区</a></li>
             <li id="navSupport"><a href="#" data-nav="pages/supportmain.html">支持</a></li>
             <li id="navAbout"><a href="#" data-nav="aboutus.html">关于</a></li>
             
@@ -119,6 +119,7 @@
         }
 
         // ===== 核心高亮与标题更新逻辑 =====
+        // ===== 核心高亮与标题更新逻辑 =====
         function updateNavUI() {
             try {
                 const contentFrame = window.parent.document.getElementById('contentFrame');
@@ -139,7 +140,18 @@
                 } else if (page.includes('supportmain')) {
                     document.getElementById('navSupport').classList.add('nav-active');
                     if (mobileTitle) mobileTitle.textContent = '支持';
+                } else if (page.includes('community')) {
+                    // 社区页
+                    const navCommunity = document.querySelector('.global-nav li a[data-nav="pages/community.html"]').parentElement;
+                    if (navCommunity) navCommunity.classList.add('nav-active');
+                    if (mobileTitle) mobileTitle.textContent = '社区';
+                } else if (page.includes('profile')) {
+                    // 个人主页
+                    const navProfile = document.getElementById('navHome'); // 手机端用首页的 li 充当高亮位
+                    if (navProfile) navProfile.classList.add('nav-active');
+                    if (mobileTitle) mobileTitle.textContent = '个人主页';
                 } else {
+                    // 首页
                     const homeNav = document.getElementById('navHome');
                     if (homeNav) homeNav.classList.add('nav-active');
                     const desktopLogo = document.querySelector('.logo-placeholder');
@@ -235,7 +247,7 @@
         if (mobileLoginBtn) mobileLoginBtn.onclick = function(e) {
             if (localStorage.getItem('ice_user')) {
                 e.preventDefault();
-                alert('个人主页暂未实现');
+                try { window.parent.postMessage({ type: 'navigate', url: 'pages/profile.html' }, '*'); } catch (err) {}
             } else {
                 handleLoginClick(e);
             }
@@ -277,7 +289,10 @@
         // ===== 下拉菜单 =====
         const menuProfileBtn = document.getElementById('menuProfileBtn');
         if (menuProfileBtn) {
-            menuProfileBtn.onclick = function(e) { e.preventDefault(); alert('个人主页暂未实现'); };
+            menuProfileBtn.onclick = function(e) { 
+                e.preventDefault(); 
+                try { window.parent.postMessage({ type: 'navigate', url: 'pages/profile.html' }, '*'); } catch (err) {} 
+            };
         }
 
         const userMenuContainer = document.querySelector('.user-menu-container');
