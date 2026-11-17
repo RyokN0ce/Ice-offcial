@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D1 数据库管理指令台 · 冰冰冰官网</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #ffffff; --text: #1d1d1f; --text-secondary: #6e6e73;
+            --card-bg: #f5f5f7; --border: #d2d2d7; --link: #0066cc;
+            --code-bg: #282c34; --code-text: #abb2bf; --btn-bg: #e8e8ed;
+        }
+        [data-theme="dark"] {
+            --bg: #000000; --text: #f5f5f7; --text-secondary: #a1a1a6;
+            --card-bg: #1c1c1e; --border: #38383a; --link: #2997ff;
+            --code-bg: #1e1e1e; --code-text: #d4d4d4; --btn-bg: #2c2c2e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg); color: var(--text); line-height: 1.6;
+            padding: 40px 20px; transition: background-color 0.35s ease;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        .page-header { text-align: center; margin-bottom: 40px; }
+        .page-header h1 { font-size: 32px; font-weight: 600; margin-bottom: 8px; }
+        .page-header p { color: var(--text-secondary); font-size: 15px; }
+
+        .card {
+            background-color: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; margin-bottom: 24px;
+            position: relative;
+        }
+        .card h2 { font-size: 18px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .card p { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; }
+        
+        /* 警告标签 */
+        .tag-danger {
+            background: rgba(255, 69, 58, 0.1); color: #ff453a;
+            padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-left: 8px;
+        }
+
+        .code-wrapper {
+            position: relative; background-color: var(--code-bg);
+            border-radius: 10px; overflow: hidden;
+        }
+        pre {
+            padding: 16px; padding-right: 60px; color: var(--code-text);
+            font-family: "SFMono-Regular", Consolas, monospace; font-size: 14px;
+            overflow-x: auto; line-height: 1.5;
+        }
+        .copy-btn {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(255, 255, 255, 0.1); color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px;
+            padding: 4px 10px; font-size: 12px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { background: rgba(255, 255, 255, 0.2); }
+        .copy-btn.copied { background: #30d158; border-color: #30d158; }
+
+        .back-home {
+            display: block; text-align: center; margin-top: 40px;
+            color: var(--link); text-decoration: none; font-size: 16px; cursor: pointer;
+        }
+        .back-home:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="page-header">
+            <h1>🗄️ 数据库管理指令台</h1>
+            <p>复制 SQL 语句，去 Cloudflare D1 Console 执行</p>
+        </header>
+
+        <!-- 1. 查询操作 -->
+        <div class="card">
+            <h2>🔍 查询与查看</h2>
+            
+            <p>查看所有用户的简略信息（不含头像数据，页面加载快）：</p>
+            <div class="code-wrapper">
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                <pre>SELECT id, username, password, nickname, qq_number, birthday, gender, location, status, created_at FROM users;</pre>
+            </div>
+
+            <p style="margin-top: 16px;">查看所有人的在线状态（谁在什么设备上登录了）：</p>
+            <div class="code-wrapper">
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                <pre>SELECT username, device_ua, created_at FROM sessions;</pre>
+            </div>
+        </div>
+
+        <!-- 2. 修改与封禁 -->
+        <div class="card">
+            <h2>🚫 封禁与解封</h2>
+            
+            <p>封禁某个违规用户（将其状态改为 banned，他将无法登录）：</p>
+            <div class="code-wrapper">
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                <pre>UPDATE users SET status = 'banned' WHERE username = '填用户名';</pre>
+            </div>
+
+            <p style="margin-top: 16px;">解封某个用户（恢复为 active）：</p>
+            <div class="code-wrapper">
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                <pre>UPDATE users SET status = 'active' WHERE username = '填用户名';</pre>
+            </div>
+        </div>
+
+        <!-- 3. 人工重置密码 -->
+        <div class="card">
+            <h2>🔑 密码重置</h2>
+            
+            <p>当用户发邮件申请忘记密码后，手动帮他改成新密码：</p>
+            <div class="code-wrapper">
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                <pre>UPDATE users SET password = '新密码' WHERE username = '填用户名';</pre>
+            </div>
+        </div>
+
+        <!-- 4. 清理与维护 -->
+        <div class="card">
+            <h2>🧹 清理与维护</h2>
+            
+            <p>强制踢掉所有人的登录状态（重置 sessions 表，用于大更新或测试互踢）：</p>
+            <div class="code-wrapper">
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                <pre>DELETE FROM sessions;</pre>
+            </div>
+
+            <p style="margin-top: 16px;">
+                彻底删除某个用户（不可逆）<span class="tag-danger">危险操作</span>
+            </p>
+            <div class="code-wrapper">
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                <pre>DELETE FROM users WHERE username = '填用户名';</pre>
+            </div>
+        </div>
+
+        <a href="#" class="back-home" id="backHomeBtn">← 返回官网主页</a>
+    </div>
+
+    <script>
+        // 初始化主题
+        const saved = localStorage.getItem('ice-theme') || 'auto';
+        let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // 一键复制功能
+        function copyCode(btn) {
+            const codeText = btn.nextElementSibling.innerText;
+            
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = "已复制!";
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                alert("复制失败，请手动选中复制");
+            });
+        }
+
+        // 返回首页
+        document.getElementById('backHomeBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            try {
+                window.parent.postMessage({ type: 'navigate', url: 'main.html' }, '*');
+            } catch (err) {
+                window.location.href = '../main.html';
+            }
+        });
+
+        try { window.parent.postMessage({ type: 'pageLoaded', path: window.location.pathname }, '*'); } catch (e) {}
+    </script>
+</body>
+</html>
