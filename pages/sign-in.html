@@ -17,8 +17,8 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg); color: var(--text);
-            display: flex; align-items: center; justify-content: center; height: 100vh;
-            transition: background-color 0.35s ease;
+            display: flex; align-items: center; justify-content: center; min-height: 100vh;
+            transition: background-color 0.35s ease; padding: 20px;
         }
         .login-box {
             background: var(--card-bg); padding: 40px; border-radius: 18px;
@@ -36,6 +36,13 @@
             color: var(--text); font-size: 15px; outline: none; transition: border 0.2s;
         }
         input:focus { border-color: var(--link); }
+
+        /* 安全问题的折叠框 */
+        .security-box {
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+            border-bottom: 1px dashed var(--border); margin-bottom: 10px;
+        }
+        .security-box.show { max-height: 300px; padding-bottom: 10px; }
 
         button {
             width: 100%; padding: 12px; border-radius: 10px; border: none;
@@ -78,8 +85,20 @@
         </div>
 
         <div class="input-group">
-            <label>QQ号 (用于联系作者，可选)</label>
-            <input type="text" id="qq" placeholder="方便后续维护沟通">
+            <label>安全问题 1 (必填，用于找回密码)</label>
+            <input type="text" id="q1" placeholder="例如：你的小学班主任姓什么？">
+        </div>
+
+        <!-- 问题 2 和 3 在输入问题 1 后自动展开 -->
+        <div class="security-box" id="securityBox">
+            <div class="input-group">
+                <label>安全问题 2 (必填)</label>
+                <input type="text" id="q2" placeholder="例如：你最喜欢的解谜游戏？">
+            </div>
+            <div class="input-group">
+                <label>安全问题 3 (必填)</label>
+                <input type="text" id="q3" placeholder="例如：你出生的城市是？">
+            </div>
         </div>
         
         <button id="registerBtn">注册并进入</button>
@@ -92,11 +111,20 @@
         let theme = saved === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
         document.documentElement.setAttribute('data-theme', theme);
 
-        // ⚠️ 确保这个链接是你实际的 Worker 链接，不要有尾随斜杠
         const API_BASE = 'https://api.iceapis.dpdns.org';
-
         const msgBox = document.getElementById('msgBox');
         const btn = document.getElementById('registerBtn');
+        const q1Input = document.getElementById('q1');
+        const securityBox = document.getElementById('securityBox');
+
+        // 动态展开逻辑：只要 q1 有内容，就滑出 q2 和 q3
+        q1Input.addEventListener('input', function() {
+            if (this.value.trim().length > 0) {
+                securityBox.classList.add('show');
+            } else {
+                securityBox.classList.remove('show');
+            }
+        });
 
         function showMsg(text, type) {
             msgBox.textContent = text;
@@ -108,23 +136,30 @@
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value.trim();
             const nick = document.getElementById('nickname').value.trim();
-            const qq = document.getElementById('qq').value.trim();
+            const q1 = q1Input.value.trim();
+            const q2 = document.getElementById('q2').value.trim();
+            const q3 = document.getElementById('q3').value.trim();
 
-            if (!user || !pass) {
-                showMsg("用户名和密码不能为空", "error");
-                return;
-            }
+            if (!user || !pass) { showMsg("用户名和密码不能为空", "error"); return; }
+            if (!q1 || !q2 || !q3) { showMsg("必须完整填写三个安全问题", "error"); return; }
 
             btn.disabled = true;
             btn.textContent = "连接 I 市网络...";
             msgBox.style.display = 'none';
 
             try {
-                // 请求注册接口
+                // 1. 请求注册接口（把安全问题一起传过去）
                 const res = await fetch(API_BASE + '/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: user, password: pass, nickname: nick, qq: qq })
+                    body: JSON.stringify({ 
+                        username: user, 
+                        password: pass, 
+                        nickname: nick, 
+                        q1: q1, 
+                        q2: q2, 
+                        q3: q3 
+                    })
                 });
                 
                 const data = await res.json();
@@ -132,7 +167,7 @@
                 if (res.ok) {
                     showMsg("注册成功，正在自动登录...", "success");
                     
-                    // 自动触发一次登录获取 token
+                    // 2. 自动登录
                     const loginRes = await fetch(API_BASE + '/api/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -143,10 +178,10 @@
                     if (loginRes.ok) {
                         localStorage.setItem('ice_user', user);
                         localStorage.setItem('ice_token', loginData.token);
-                        localStorage.setItem('ice_nickname', loginData.nickname || user);
+                        localStorage.setItem('ice_nickname', loginData.nickname || user); // 保存昵称
                     } else {
-                        // 登录失败只存用户，不存 token
                         localStorage.setItem('ice_user', user);
+                        localStorage.setItem('ice_nickname', user);
                     }
                     
                     // 通知导航栏
@@ -167,7 +202,7 @@
                     btn.textContent = "注册并进入";
                 }
             } catch (err) {
-                showMsg("无法连接到服务器，请检查网络或 Worker 状态", "error");
+                showMsg("无法连接到服务器，请检查网络", "error");
                 btn.disabled = false;
                 btn.textContent = "注册并进入";
             }
