@@ -1,0 +1,29 @@
+/* tools/userat.css */
+.ua-dropdown {
+    position: absolute;
+    background: var(--panel-bg, #fff);
+    border: 1px solid var(--panel-border, #e8e8ed);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    width: 200px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 99999;
+    display: none;
+    flex-direction: column;
+}
+.ua-dropdown.show { display: flex; }
+.ua-item {
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.ua-item:hover { background: var(--bg, #f5f5f7); }
+.ua-item img {
+    width: 24px; height: 24px; border-radius: 50%; object-fit: cover;
+    background: #ccc;
+}
+.ua-item span { font-size: 14px; color: var(--text, #1d1d1f); }
