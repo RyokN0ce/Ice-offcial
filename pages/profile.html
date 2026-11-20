@@ -22,9 +22,21 @@
             display: flex; justify-content: center; transition: background-color 0.35s ease;
         }
         .profile-container {
-            background: var(--card-bg); width: 100%; max-width: 600px;
+            background-color: var(--card-bg); width: 100%; max-width: 600px;
             border-radius: 24px; padding: 40px; position: relative;
+            background-size: cover; background-position: center;
+            /* 加个过渡 */
+            transition: background-image 0.3s;
         }
+        
+        /* 如果有背景图，加一层半透明遮罩让文字清晰 */
+        .profile-container.has-bg::before {
+            content: ''; position: absolute; inset: 0;
+            background: var(--card-bg); opacity: 0.9;
+            border-radius: 24px; z-index: 0;
+        }
+        .profile-container > * { position: relative; z-index: 1; }
+
         .avatar-wrapper { position: relative; width: 120px; height: 120px; margin: 0 auto 20px; }
         .avatar-large {
             width: 100%; height: 100%; border-radius: 50%; background: var(--border);
@@ -74,6 +86,14 @@
         .fake-date-input { cursor: pointer; display: flex; align-items: center; }
         .fake-date-input:empty::before { content: '选择日期'; color: var(--text-secondary); }
         
+        .background-preview {
+            width: 100%; height: 100px; border-radius: 10px; border: 1px dashed var(--border);
+            background-size: cover; background-position: center; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 13px;
+            cursor: pointer; transition: border 0.2s; background-color: var(--bg);
+        }
+        .background-preview:hover { border-color: var(--link); }
+
         .btn-row { display: flex; gap: 10px; margin-top: 10px; }
         button {
             flex: 1; padding: 12px; border-radius: 10px; border: none;
@@ -93,7 +113,7 @@
 </head>
 <body>
 
-    <div class="profile-container">
+    <div class="profile-container" id="profileCard">
         <div class="avatar-wrapper">
             <div class="avatar-large" id="avatarBox">👤</div>
             <div class="verify-badge" id="verifyBadge">
@@ -153,6 +173,14 @@
                     <option value="其他">其他</option>
                 </select>
             </div>
+
+            <!-- 新增背景图上传 -->
+            <div class="input-group">
+                <label>个人主页背景图</label>
+                <div class="background-preview" id="bgPreview" onclick="document.getElementById('bgFileInput').click()">点击上传背景图</div>
+                <input type="file" id="bgFileInput" accept="image/png, image/jpeg, image/jpg" style="display: none;">
+            </div>
+
             <div class="btn-row">
                 <button class="btn-secondary" id="cancelBtn">取消</button>
                 <button id="saveBtn">保存资料</button>
@@ -201,6 +229,7 @@
 
         const msgBox = document.getElementById('msgBox');
         let currentAvatarBase64 = ""; 
+        let currentBgBase64 = "";
 
         const customDateInput = document.getElementById('customDateInput');
         const hiddenDateInput = document.getElementById('inputBirthday');
@@ -231,7 +260,6 @@
                     document.getElementById('displayBirthday').textContent = u.birthday || "未填写";
                     document.getElementById('displayGender').textContent = u.gender ? u.gender : "保密";
 
-                    // 渲染认证
                     if (u.verify_type) {
                         const badge = document.getElementById('verifyBadge');
                         badge.style.display = 'flex';
@@ -248,11 +276,22 @@
                         avatarBox.querySelector('img').onclick = function() { PhotoView.open(u.avatar_url); };
                     }
 
+                    if (u.background_url) {
+                        const card = document.getElementById('profileCard');
+                        card.style.backgroundImage = `url('${u.background_url}')`;
+                        card.classList.add('has-bg');
+                        
+                        const preview = document.getElementById('bgPreview');
+                        preview.style.backgroundImage = `url('${u.background_url}')`;
+                        preview.textContent = '';
+                        currentBgBase64 = u.background_url;
+                    }
+
                     if (isMyProfile) {
                         if(u.nickname) localStorage.setItem('ice_nickname', u.nickname);
                         
                         document.getElementById('editBtn').style.display = 'block';
-                        document.getElementById('applyVerifyBtn').style.display = 'block'; // 显示申请按钮
+                        document.getElementById('applyVerifyBtn').style.display = 'block';
                         
                         document.getElementById('inputNickname').value = u.nickname || u.username;
                         document.getElementById('inputQQ').value = u.qq_number || "";
@@ -276,7 +315,6 @@
 
         loadProfile();
 
-        // 申请认证逻辑
         document.getElementById('applyVerifyBtn').onclick = function() {
             const user = localStorage.getItem('ice_user');
             const nick = localStorage.getItem('ice_nickname') || user;
@@ -284,12 +322,11 @@
             alert(text);
         };
 
-        // 切换模式
         document.getElementById('editBtn').onclick = () => {
             document.getElementById('viewMode').style.display = 'none';
             document.getElementById('editMode').style.display = 'flex';
             document.getElementById('avatarUploadLabel').style.display = 'flex';
-            document.getElementById('verifyBadge').style.display = 'none'; // 隐藏徽章
+            document.getElementById('verifyBadge').style.display = 'none';
         };
         document.getElementById('cancelBtn').onclick = () => {
             document.getElementById('viewMode').style.display = 'block';
@@ -300,10 +337,9 @@
                 avatarBox.innerHTML = `<img src="${currentAvatarBase64}">`;
                 avatarBox.querySelector('img').onclick = function() { PhotoView.open(currentAvatarBase64); };
             } else { avatarBox.innerHTML = `👤`; }
-            loadProfile(); // 重新加载恢复认证标识
+            loadProfile();
         };
 
-        // 处理本地图片
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -319,13 +355,33 @@
             reader.readAsDataURL(file);
         });
 
-        // 保存资料
+        document.getElementById('bgFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 3 * 1024 * 1024) {
+                msgBox.className = 'msg error'; msgBox.textContent = "背景图太大 (需 <3MB)"; msgBox.style.display = 'block';
+                this.value = ''; return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                currentBgBase64 = event.target.result;
+                const preview = document.getElementById('bgPreview');
+                preview.style.backgroundImage = `url('${currentBgBase64}')`;
+                preview.textContent = '';
+                
+                const card = document.getElementById('profileCard');
+                card.style.backgroundImage = `url('${currentBgBase64}')`;
+                card.classList.add('has-bg');
+            };
+            reader.readAsDataURL(file);
+        });
+
         document.getElementById('saveBtn').onclick = async function() {
             this.disabled = true; this.textContent = "保存中..."; msgBox.style.display = 'none';
             const payload = {
                 username: currentUser, nickname: document.getElementById('inputNickname').value.trim(),
-                avatar_url: currentAvatarBase64, qq: document.getElementById('inputQQ').value.trim(),
-                location: document.getElementById('inputLocation').value.trim(),
+                avatar_url: currentAvatarBase64, background_url: currentBgBase64,
+                qq: document.getElementById('inputQQ').value.trim(), location: document.getElementById('inputLocation').value.trim(),
                 birthday: hiddenDateInput.value, gender: document.getElementById('inputGender').value
             };
             try {
@@ -337,14 +393,11 @@
             } catch (e) {} finally { this.disabled = false; this.textContent = "保存资料"; }
         };
 
-        // 修改登录名
         document.getElementById('changeUsernameBtn').onclick = async function() {
             const newName = document.getElementById('newUsername').value.trim();
             const pwd = document.getElementById('usernamePwd').value.trim();
-
             if (!newName || !pwd) { msgBox.className = 'msg error'; msgBox.textContent = "请填写新用户名和密码"; msgBox.style.display = 'block'; return; }
             if (!confirm(`确定要将登录名修改为 "${newName}" 吗？修改后需要重新登录！`)) return;
-
             this.disabled = true; this.textContent = "修改中..."; msgBox.style.display = 'none';
             try {
                 const res = await fetch(API_BASE + '/api/change-username', {
@@ -364,12 +417,10 @@
             } finally { this.disabled = false; this.textContent = "确认修改登录名"; }
         };
 
-        // 修改密码
         document.getElementById('changePwdBtn').onclick = async function() {
             const oldPwd = document.getElementById('oldPassword').value.trim();
             const newPwd = document.getElementById('newPassword').value.trim();
             if (!oldPwd || !newPwd) { msgBox.className = 'msg error'; msgBox.textContent = "请填写完整"; msgBox.style.display = 'block'; return; }
-
             this.disabled = true; this.textContent = "正在修改..."; msgBox.style.display = 'none';
             try {
                 const res = await fetch(API_BASE + '/api/change-password', {
